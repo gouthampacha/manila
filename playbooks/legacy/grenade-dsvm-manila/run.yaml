@@ -34,6 +34,7 @@
           export DEVSTACK_GATE_NEUTRON=0
           export DEVSTACK_GATE_TEMPEST_NOTESTS=1
           export DEVSTACK_GATE_GRENADE=pullup
+          export PYTHON3_VERSION=3.6
 
           # Basic services needed for grenade manila job using dummy driver
           export OVERRIDE_ENABLED_SERVICES=key,mysql,rabbit
