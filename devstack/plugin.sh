@@ -87,10 +87,11 @@ function configure_default_backends {
         else
             iniset $MANILA_CONF $group_name share_backend_name $MANILA_SHARE_BACKEND2_NAME
         fi
-        iniset $MANILA_CONF $group_name path_to_public_key $MANILA_PATH_TO_PUBLIC_KEY
-        iniset $MANILA_CONF $group_name path_to_private_key $MANILA_PATH_TO_PRIVATE_KEY
+        # driver's share-servers/"service instances" configuration
         iniset $MANILA_CONF $group_name service_image_name $MANILA_SERVICE_IMAGE_NAME
+        iniset $MANILA_CONF $group_name interface_driver $MANILA_SERVICE_VM_INTERFACE_DRIVER
         iniset $MANILA_CONF $group_name service_instance_user $MANILA_SERVICE_INSTANCE_USER
+
         iniset $MANILA_CONF $group_name driver_handles_share_servers True
 
         if [ "$SHARE_DRIVER" == $MANILA_CONTAINER_DRIVER ]; then
@@ -101,6 +102,9 @@ function configure_default_backends {
 
         if [ $(trueorfalse False MANILA_USE_SERVICE_INSTANCE_PASSWORD) == True ]; then
             iniset $MANILA_CONF $group_name service_instance_password $MANILA_SERVICE_INSTANCE_PASSWORD
+        else
+            iniset $MANILA_CONF $group_name path_to_public_key $MANILA_PATH_TO_PUBLIC_KEY
+            iniset $MANILA_CONF $group_name path_to_private_key $MANILA_PATH_TO_PRIVATE_KEY
         fi
     done
 }

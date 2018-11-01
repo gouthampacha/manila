@@ -55,6 +55,7 @@ BACK_END_TYPE=$3
 echo "MANILA_OPTGROUP_london_driver_handles_share_servers=$DHSS" >> $localconf
 echo "MANILA_OPTGROUP_paris_driver_handles_share_servers=$DHSS" >> $localconf
 echo "MANILA_USE_SERVICE_INSTANCE_PASSWORD=True" >> $localconf
+echo "MANILA_SERVICE_VM_INTERFACE_DRIVER=${MANILA_SERVICE_VM_INTERFACE_DRIVER:=manila.network.linux.interface.OVSInterfaceDriver}" >> $localconf
 echo "MANILA_USE_DOWNGRADE_MIGRATIONS=True" >> $localconf
 
 if [[ "$BACK_END_TYPE" == "multibackend" ]]; then
