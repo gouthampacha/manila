@@ -37,7 +37,7 @@ share group type for the following purposes:
 List share group types
 ======================
 
-.. rest_method::  GET /v2/{tenant_id}/share-group-types
+.. rest_method::  GET /v2/{project_id}/share-group-types
 
 Lists all share group types.
 
@@ -53,7 +53,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
 
 Response parameters
 -------------------
@@ -77,7 +77,7 @@ Response example
 List default share group types
 ==============================
 
-.. rest_method::  GET /v2/{tenant_id}/share-group-types/default
+.. rest_method::  GET /v2/{project_id}/share-group-types/default
 
 Lists default share group types.
 
@@ -100,7 +100,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
 
 Response parameters
 -------------------
@@ -124,7 +124,7 @@ Response example
 List share group types extra specs
 ==================================
 
-.. rest_method::  GET /v2/{tenant_id}/share-group-types/{share_group_type_id}/group_specs
+.. rest_method::  GET /v2/{project_id}/share-group-types/{share_group_type_id}/group_specs
 
 Lists the extra specifications for a share group type.
 
@@ -147,7 +147,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_group_type_id: share_group_type_id_required
 
 Response parameters
@@ -167,7 +167,7 @@ Response example
 Create share group type
 =======================
 
-.. rest_method::  POST /v2/{tenant_id}/share-group-types
+.. rest_method::  POST /v2/{project_id}/share-group-types
 
 Creates a share group type.
 
@@ -191,7 +191,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_types: share_types_1
    - name: share_group_type_name
    - group_specs: group_specs
@@ -225,7 +225,7 @@ Response example
 Show share group type access details
 ====================================
 
-.. rest_method::  GET /v2/{tenant_id}/share-group-types/{share_group_type_id}/share_type_access
+.. rest_method::  GET /v2/{project_id}/share-group-types/{share_group_type_id}/share_type_access
 
 Shows access details for a share group type.
 
@@ -250,7 +250,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_group_type_id: share_group_type_id_required
 
 Response parameters
@@ -259,7 +259,7 @@ Response parameters
 .. rest_parameters:: parameters.yaml
 
    - share_group_type_id: share_group_type_id_required
-   - project_id: project_id_9
+   - project_id: project_id_type_access
 
 Response example
 ----------------
@@ -271,7 +271,7 @@ Response example
 Set extra spec for share group type
 ===================================
 
-.. rest_method::  POST /v2/{tenant_id}/share-group-types/{share_group_type_id}/group_specs
+.. rest_method::  POST /v2/{project_id}/share-group-types/{share_group_type_id}/group_specs
 
 Sets an extra specification for the share group type.
 
@@ -295,7 +295,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_group_type_id: share_group_type_id_required
    - group_specs: group_specs_required
 
@@ -322,7 +322,7 @@ Response example
 Unset an group spec
 ===================
 
-.. rest_method::  DELETE /v2/{tenant_id}/share-group-types/{share_group_type_id}/group-specs/{group_spec_key}
+.. rest_method::  DELETE /v2/{project_id}/share-group-types/{share_group_type_id}/group-specs/{group_spec_key}
 
 Unsets an extra specification for the share type.
 
@@ -345,7 +345,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_group_type_id: share_group_type_id_required
    - group_spec_key: group_spec_key
 
@@ -353,7 +353,7 @@ Request
 Add share group type access
 ===========================
 
-.. rest_method::  POST /v2/{tenant_id}/share-group-types/{share_group_type_id}/action
+.. rest_method::  POST /v2/{project_id}/share-group-types/{share_group_type_id}/action
 
 Adds share group type access for a project.
 
@@ -379,9 +379,10 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_group_type_id: share_group_type_id_path
-   - project: project
+   - addProjectAccess: add_project_access
+   - project: project_id_type_access_grant_request
 
 Request example
 ---------------
@@ -393,7 +394,7 @@ Request example
 Remove share group type access
 ==============================
 
-.. rest_method::  POST /v2/{tenant_id}/share-group-types/{share_group_type_id}/action
+.. rest_method::  POST /v2/{project_id}/share-group-types/{share_group_type_id}/action
 
 Removes share group type access from a project.
 
@@ -418,9 +419,11 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_group_type_id: share_group_type_id_path
-   - project: project
+   - removeProjectAccess: remove_project_access
+   - project: project_id_type_access_revoke_request
+
 
 Request example
 ---------------
@@ -432,7 +435,7 @@ Request example
 Delete share group type
 =======================
 
-.. rest_method::  DELETE /v2/{tenant_id}/share-group-types/{share_group_type_id}
+.. rest_method::  DELETE /v2/{project_id}/share-group-types/{share_group_type_id}
 
 Deletes a share group type.
 
@@ -455,5 +458,5 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_group_type_id: share_group_type_id_path

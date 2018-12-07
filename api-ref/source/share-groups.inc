@@ -26,7 +26,7 @@ share groups, and show information for delete a share group.
 List share groups
 =================
 
-.. rest_method::  GET /v2/{tenant_id}/share_groups
+.. rest_method::  GET /v2/{project_id}/share_groups
 
 Lists all share groups.
 
@@ -48,8 +48,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id
-   - project_id: project_id
+   - project_id: project_id_path
    - all_tenants: all_tenants
    - name: name_query
    - description: description_query
@@ -87,7 +86,7 @@ Response example
 Show share group details
 ========================
 
-.. rest_method::  GET /v2/{tenant_id}/share_groups/{share_group_id}
+.. rest_method::  GET /v2/{project_id}/share_groups/{share_group_id}
 
 Shows details for a share group.
 
@@ -111,8 +110,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
    - share_group_id: share_group_id_path
-   - tenant_id: tenant_id
 
 Response parameters
 -------------------
@@ -144,7 +143,7 @@ Response example
 Create share group
 ==================
 
-.. rest_method::  POST /v2/{tenant_id}/share_groups
+.. rest_method::  POST /v2/{project_id}/share_groups
 
 Creates a share group.
 
@@ -169,7 +168,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - name: share_group_name
    - description: share_group_description
    - share_types: share_types
@@ -214,7 +213,7 @@ Response example
 Reset share group state
 =======================
 
-.. rest_method::  POST /v2/{tenant_id}/share-groups/{share_group_id}/action
+.. rest_method::  POST /v2/{project_id}/share-groups/{share_group_id}/action
 
 Administrator only. Explicitly updates the state of a share group.
 
@@ -240,10 +239,11 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
+   - share_group_id: share_group_id_path
    - reset_status: reset_status
    - status: share_group_status
-   - share_group_id: share_group_id_path
-   - tenant_id: tenant_id_path
+
 
 Request example
 ---------------
@@ -255,7 +255,7 @@ Request example
 Update share group
 ==================
 
-.. rest_method::  PUT /v2/{tenant_id}/share-groups/{share_group_id}
+.. rest_method::  PUT /v2/{project_id}/share-groups/{share_group_id}
 
 Updates a share group.
 
@@ -279,10 +279,11 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
+   - share_group_id: share_group_id_path
    - display_name: share_group_name
    - display_description: share_group_description
-   - share_group_id: share_group_id_path
-   - tenant_id: tenant_id_path
+
 
 Request example
 ---------------
@@ -320,7 +321,7 @@ Response example
 Delete share group
 ==================
 
-.. rest_method::  DELETE /v2/{tenant_id}/share-groups/{share_group_id}
+.. rest_method::  DELETE /v2/{project_id}/share-groups/{share_group_id}
 
 Deletes a share group.
 
@@ -344,6 +345,6 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
    - share_group_id: share_group_id_path
-   - tenant_id: tenant_id_path
    - force: share_force_delete

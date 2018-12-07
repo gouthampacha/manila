@@ -23,7 +23,7 @@ Possible use cases for data migration include:
 Migrate share (versions 2.5 to 2.14)
 =========================================
 
-.. rest_method::  POST /v2/{tenant_id}/shares/{share_id}/action
+.. rest_method::  POST /v2/{project_id}/shares/{share_id}/action
 
 Migrates a share from one back end to another.
 
@@ -53,7 +53,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_id: share_id
    - os-migrate_share: os-migrate_share
    - migrate_share: migrate_share
@@ -64,7 +64,7 @@ Request
 Start Migration (Since version 2.15)
 ====================================
 
-.. rest_method::  POST /v2/{tenant_id}/shares/{share_id}/action
+.. rest_method::  POST /v2/{project_id}/shares/{share_id}/action
 
 Initiates share migration. This API will initiate the share data copy to the
 new host. The copy operation is non-disruptive.
@@ -89,7 +89,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_id: share_id
    - migrate-start: migrate-start
    - host: host_10
@@ -100,7 +100,7 @@ Request
 Complete Migration (Since version 2.15)
 =======================================
 
-.. rest_method::  POST /v2/{tenant_id}/shares/{share_id}/action
+.. rest_method::  POST /v2/{project_id}/shares/{share_id}/action
 
 Completes share migration. This API will initiate the switch-over from the
 source to destination share. This operation is disruptive.
@@ -125,7 +125,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_id: share_id
    - migration_complete: migration_complete
    - host: host_10

@@ -19,7 +19,7 @@ to grant permissions for these actions to other roles.
 List share snapshot instances
 =============================
 
-.. rest_method::  GET /v2/{tenant_id}/snapshot-instances
+.. rest_method::  GET /v2/{project_id}/snapshot-instances
 
 Lists all share snapshot instances.
 
@@ -41,7 +41,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - snapshot_id: snapshot_id_query
 
 Response parameters
@@ -63,7 +63,7 @@ Response example
 List share snapshot instances with details
 ==========================================
 
-.. rest_method::  GET /v2/{tenant_id}/snapshot-instances/detail
+.. rest_method::  GET /v2/{project_id}/snapshot-instances/detail
 
 Lists all share snapshot instances with details.
 
@@ -85,7 +85,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - snapshot_id: snapshot_id_query
 
 Response parameters
@@ -113,7 +113,7 @@ Response example
 Show share snapshot instance details
 ====================================
 
-.. rest_method::  GET /v2/{tenant_id}/snapshot-instances/{snapshot_instance_id}
+.. rest_method::  GET /v2/{project_id}/snapshot-instances/{snapshot_instance_id}
 
 Shows details for a share snapshot instance.
 
@@ -136,7 +136,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - snapshot_instance_id: snapshot_instance_id_path
 
 Response parameters
@@ -164,7 +164,7 @@ Response example
 Reset share snapshot instance state
 ===================================
 
-.. rest_method::  POST /v2/{tenant_id}/snapshot-instances/{snapshot_instance_id}/action
+.. rest_method::  POST /v2/{project_id}/snapshot-instances/{snapshot_instance_id}/action
 
 Administrator only. Explicitly updates the state of a share snapshot instance.
 
@@ -190,7 +190,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - snapshot_instance_id: snapshot_instance_id_path
    - status: snapshot_instance_status
 

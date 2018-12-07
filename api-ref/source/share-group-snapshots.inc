@@ -25,7 +25,7 @@ roles.
 List share group snapshots
 ==========================
 
-.. rest_method::  GET /v2/{tenant_id}/share-group-snapshots
+.. rest_method::  GET /v2/{project_id}/share-group-snapshots
 
 Lists all share group snapshots.
 
@@ -46,8 +46,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
-   - project_id: project_id
+   - project_id: project_id_path
    - all_tenants: all_tenants
    - name: group_snapshot_name_query
    - description: group_snapshot_description_query
@@ -77,7 +76,7 @@ Response example
 List share group snapshots with details
 =======================================
 
-.. rest_method::  GET /v2/{tenant_id}/share-group-snapshots/detail
+.. rest_method::  GET /v2/{project_id}/share-group-snapshots/detail
 
 Lists all share group snapshots with details.
 
@@ -98,8 +97,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
-   - project_id: project_id
+   - project_id: project_id_path
    - all_tenants: all_tenants
    - name: group_snapshot_name_query
    - description: group_snapshot_description_query
@@ -135,7 +133,7 @@ Response example
 List share group snapshots members
 ==================================
 
-.. rest_method::  GET /v2/{tenant_id}/share-group-snapshots/{group_snapshot_id}/members
+.. rest_method::  GET /v2/{project_id}/share-group-snapshots/{group_snapshot_id}/members
 
 Lists all share group snapshots members.
 
@@ -156,7 +154,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - group_snapshot_id: group_snapshot_id_path
 
 Response parameters
@@ -184,7 +182,7 @@ Response example
 Show share group snapshot details
 =================================
 
-.. rest_method::  GET /v2/{tenant_id}/share-group-snapshots/{group_snapshot_id}
+.. rest_method::  GET /v2/{project_id}/share-group-snapshots/{group_snapshot_id}
 
 Shows details for a share group snapshot.
 
@@ -206,7 +204,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - group_snapshot_id: group_snapshot_id_path
 
 Response parameters
@@ -234,7 +232,7 @@ Response example
 Create share group snapshot
 ===========================
 
-.. rest_method::  POST /v2/{tenant_id}/share-group-snapshots
+.. rest_method::  POST /v2/{project_id}/share-group-snapshots
 
 Creates a snapshot from a share.
 
@@ -258,7 +256,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - name: group_snapshot_name_option
    - description: group_snapshot_description_option
    - share_group_id: share_group_id
@@ -294,7 +292,7 @@ Response example
 Reset share group snapshot state
 ================================
 
-.. rest_method::  POST /v2/{tenant_id}/share-group-snapshots/{group_snapshot_id}/action
+.. rest_method::  POST /v2/{project_id}/share-group-snapshots/{group_snapshot_id}/action
 
 Administrator only. Explicitly updates the state of a share group snapshot.
 
@@ -320,7 +318,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - group_snapshot_id: group_snapshot_id_path
    - status: group_snapshot_status_required
 
@@ -334,7 +332,7 @@ Request example
 Update share group snapshot
 ===========================
 
-.. rest_method::  PUT /v2/{tenant_id}/share-group-snapshots/{group_snapshot_id}
+.. rest_method::  PUT /v2/{project_id}/share-group-snapshots/{group_snapshot_id}
 
 Updates a share group snapshot.
 
@@ -358,7 +356,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - group_snapshot_id: group_snapshot_id_path
    - name: group_snapshot_name_option
    - description: group_snapshot_description_option
@@ -394,7 +392,7 @@ Response example
 Delete share group snapshot
 ===========================
 
-.. rest_method::  DELETE /v2/{tenant_id}/share-group-snapshots/{group_snapshot_id}
+.. rest_method::  DELETE /v2/{project_id}/share-group-snapshots/{group_snapshot_id}
 
 Deletes a share group snapshot.
 
@@ -417,5 +415,5 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - group_snapshot_id: group_snapshot_id_path

@@ -17,7 +17,7 @@ Show details of an export location belonging to a share instance.
 List export locations
 =====================
 
-.. rest_method::  GET /v2/{tenant_id}/share_instances/{share_instance_id}/export_locations
+.. rest_method::  GET /v2/{project_id}/share_instances/{share_instance_id}/export_locations
 
 Response codes
 --------------
@@ -38,7 +38,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_instance_id: share_instance_id
 
 Response parameters
@@ -62,7 +62,7 @@ Response example
 Show single export location
 ===========================
 
-.. rest_method::  GET /v2/{tenant_id}/share_instances/{share_instance_id}/export_locations/{export_location_id}
+.. rest_method::  GET /v2/{project_id}/share_instances/{share_instance_id}/export_locations/{export_location_id}
 
 
 Response codes
@@ -84,7 +84,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_instance_id: share_instance_id
    - export_location_id: export_location_id_path
 

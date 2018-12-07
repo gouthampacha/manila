@@ -55,7 +55,7 @@ one of these supported replication types:
 Create share replica
 ====================
 
-.. rest_method::  POST /v2/{tenant_id}/share-replicas
+.. rest_method::  POST /v2/{project_id}/share-replicas
 
 Create a share replica for the share.
 
@@ -78,7 +78,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_id: share_replica_share_id
    - availability_zone: share_replica_az
    - share_network_id: share_replica_share_network_id
@@ -116,7 +116,7 @@ Response example
 Promote share replica
 =====================
 
-.. rest_method::  POST /v2/{tenant_id}/share-replicas/{share_replica_id}/action
+.. rest_method::  POST /v2/{project_id}/share-replicas/{share_replica_id}/action
 
 Promotes a replica to ``active`` replica state.
 
@@ -139,14 +139,14 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_replica_id: share_replica_id_path
 
 
 Resync share replica
 ====================
 
-.. rest_method::  POST /v2/{tenant_id}/share-replicas/{share_replica_id}/action
+.. rest_method::  POST /v2/{project_id}/share-replicas/{share_replica_id}/action
 
 Resync a replica with its ``active`` mirror.
 
@@ -169,14 +169,14 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
    - share_replica_id: share_replica_id_path
 
 
 List share replicas
 ===================
 
-.. rest_method::  GET /v2/{tenant_id}/share-replicas?share_id={share_id}
+.. rest_method::  GET /v2/{project_id}/share-replicas?share_id={share_id}
 
 Lists share replicas.
 
@@ -199,8 +199,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
    - share_id: share_id
-   - tenant_id: tenant_id_path
 
 Response parameters
 -------------------
@@ -222,7 +222,7 @@ Response example
 List share replicas with details
 ================================
 
-.. rest_method::  GET /v2/{tenant_id}/share-replicas/detail?share_id={share_id}
+.. rest_method::  GET /v2/{project_id}/share-replicas/detail?share_id={share_id}
 
 Lists share replicas with details.
 
@@ -245,8 +245,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - share_id: share_id
-   - tenant_id: tenant_id_path
+   - project_id: project_id_path
+   - share_id: share_id_replicas_query
 
 Response parameters
 -------------------
@@ -274,7 +274,7 @@ Response example
 Show share replica
 ==================
 
-.. rest_method::  GET /v2/{tenant_id}/share-replicas/{share_replica_id}
+.. rest_method::  GET /v2/{project_id}/share-replicas/{share_replica_id}
 
 Show a share replica.
 
@@ -297,8 +297,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
    - share_replica_id: share_replica_id_path
-   - tenant_id: tenant_id_path
 
 
 Response parameters
@@ -327,7 +327,7 @@ Response example
 Reset status of the share replica
 =================================
 
-.. rest_method::  POST /v2/{tenant_id}/share-replicas/{share_replica_id}/action
+.. rest_method::  POST /v2/{project_id}/share-replicas/{share_replica_id}/action
 
 Administrator only. Explicitly updates the ``status`` of a share replica.
 
@@ -353,10 +353,10 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
+   - share_replica_id: share_replica_id_path
    - reset_status: reset_status
    - status: share_replica_status
-   - share_replica_id: share_replica_id_path
-   - tenant_id: tenant_id_path
 
 Request example
 ---------------
@@ -368,7 +368,7 @@ Request example
 Reset replica_state of the share replica
 ========================================
 
-.. rest_method::  POST /v2/{tenant_id}/share-replicas/{share_replica_id}/action
+.. rest_method::  POST /v2/{project_id}/share-replicas/{share_replica_id}/action
 
 Administrator only. Explicitly updates the ``replica state`` of a share replica.
 
@@ -394,10 +394,10 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
+   - share_replica_id: share_replica_id_path
    - reset_replica_state: share_replica_reset_replica_state
    - replica_state: share_replica_replica_state
-   - share_replica_id: share_replica_id_path
-   - tenant_id: tenant_id_path
 
 Request example
 ---------------
@@ -409,7 +409,7 @@ Request example
 Delete share replica
 ====================
 
-.. rest_method::  DELETE /v2/{tenant_id}/share-replicas/{share_replica_id}
+.. rest_method::  DELETE /v2/{project_id}/share-replicas/{share_replica_id}
 
 Deletes a share replica.
 
@@ -437,14 +437,14 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
    - share_replica_id: share_replica_id_path
-   - tenant_id: tenant_id_path
 
 
 Force-delete share replica
 ==========================
 
-.. rest_method::  POST /v2/{tenant_id}/share-replicas/{share_replica_id}/action
+.. rest_method::  POST /v2/{project_id}/share-replicas/{share_replica_id}/action
 
 Administrator only. Force-deletes a share replica in any state.
 
@@ -474,9 +474,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - force_delete: share_replica_force_delete
+   - project_id: project_id_path
    - share_replica_id: share_replica_id_path
-   - tenant_id: tenant_id_path
+   - force_delete: share_replica_force_delete
 
 Request example
 ---------------

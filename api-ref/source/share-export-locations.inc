@@ -15,7 +15,7 @@ locations of non-active share replicas can only be retrieved using the
 List export locations
 =====================
 
-.. rest_method::  GET /v2/{tenant_id}/shares/{share_id}/export_locations
+.. rest_method::  GET /v2/{project_id}/shares/{share_id}/export_locations
 
 Lists all export locations for a share.
 
@@ -38,8 +38,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
    - share_id: share_id
-   - tenant_id: tenant_id_path
 
 Response parameters
 -------------------
@@ -62,7 +62,7 @@ Response example
 Show single export location
 ===========================
 
-.. rest_method::  GET /v2/{tenant_id}/shares/{share_id}/export_locations/​{export_location_id}​
+.. rest_method::  GET /v2/{project_id}/shares/{share_id}/export_locations/​{export_location_id}​
 
 Show details of an export location belonging to a share.
 
@@ -85,8 +85,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
    - share_id: share_id
-   - tenant_id: tenant_id_path
    - export_location_id: export_location_id_path
 
 Response parameters
