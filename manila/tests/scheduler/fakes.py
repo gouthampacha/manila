@@ -289,17 +289,24 @@ FAKE_HOST_STRING_3 = 'openstack@BackendC#PoolZ'
 def mock_host_manager_db_calls(mock_obj, disabled=None):
     services = [
         dict(id=1, host='host1', topic='share', disabled=False,
-             availability_zone_id='zone1', updated_at=timeutils.utcnow()),
+             availability_zone='zone1',
+             availability_zone_id='d68ab396-79ba-4ddd-a03a-54ed3308b33f',
+             updated_at=timeutils.utcnow()),
         dict(id=2, host='host2', topic='share', disabled=False,
-             availability_zone_id='zone1', updated_at=timeutils.utcnow()),
+             availability_zone_id='d68ab396-79ba-4ddd-a03a-54ed3308b33f',
+             availability_zone='zone1', updated_at=timeutils.utcnow()),
         dict(id=3, host='host3', topic='share', disabled=False,
-             availability_zone_id='zone2', updated_at=timeutils.utcnow()),
+             availability_zone_id='c185121a-1bb5-4b53-b314-4e5fd4076e1f',
+             availability_zone='zone2', updated_at=timeutils.utcnow()),
         dict(id=4, host='host4', topic='share', disabled=False,
-             availability_zone_id='zone3', updated_at=timeutils.utcnow()),
+             availability_zone_id='afb577a7-d05e-47a1-9d72-fb72c46cef57',
+             availability_zone='zone3', updated_at=timeutils.utcnow()),
         dict(id=5, host='host5', topic='share', disabled=False,
-             availability_zone_id='zone3', updated_at=timeutils.utcnow()),
+             availability_zone_id='afb577a7-d05e-47a1-9d72-fb72c46cef57',
+             availability_zone='zone3', updated_at=timeutils.utcnow()),
         dict(id=6, host='host6', topic='share', disabled=False,
-             availability_zone_id='zone4', updated_at=timeutils.utcnow()),
+             availability_zone_id='0769f88e-bff8-4c79-a2b5-a5bec8ada0f2',
+             availability_zone='zone4', updated_at=timeutils.utcnow()),
     ]
     if disabled is None:
         mock_obj.return_value = services
