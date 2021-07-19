@@ -64,7 +64,24 @@ deprecated_security_service_get_all = policy.DeprecatedRule(
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.WALLABY
 )
-
+deprecated_update_security_service_metadata = policy.DeprecatedRule(
+    name=BASE_POLICY_NAME % 'update_metadata',
+    check_str=base.RULE_DEFAULT,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.WALLABY
+)
+deprecated_delete_security_service_metadata = policy.DeprecatedRule(
+    name=BASE_POLICY_NAME % 'delete_metadata',
+    check_str=base.RULE_DEFAULT,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.WALLABY
+)
+deprecated_get_security_service_metadata = policy.DeprecatedRule(
+    name=BASE_POLICY_NAME % 'get_metadata',
+    check_str=base.RULE_DEFAULT,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.WALLABY
+)
 
 security_service_policies = [
     policy.DocumentedRuleDefault(
@@ -169,6 +186,55 @@ security_service_policies = [
             }
         ],
         deprecated_rule=deprecated_security_service_get_all
+    ),
+    policy.DocumentedRuleDefault(
+        name=BASE_POLICY_NAME % 'update_metadata',
+        check_str=base.SYSTEM_ADMIN_OR_PROJECT_MEMBER,
+        scope_types=['system', 'project'],
+        description=("Update security service metadata."),
+        operations=[
+            {
+                'method': 'PUT',
+                'path': '/security-services/{security_service_id}/metadata',
+            },
+            {
+                'method': 'POST',
+                'path': '/security-services/{security_service_id}/metadata',
+            },
+        ],
+        deprecated_rule=deprecated_update_security_service_metadata
+    ),
+    policy.DocumentedRuleDefault(
+        name=BASE_POLICY_NAME % 'delete_metadata',
+        check_str=base.SYSTEM_ADMIN_OR_PROJECT_MEMBER,
+        scope_types=['system', 'project'],
+        description=("Delete security service metadata."),
+        operations=[
+            {
+                'method': 'DELETE',
+                'path': '/security-services/{security_service_id}/metadata/'
+                        '{key}',
+            }
+        ],
+        deprecated_rule=deprecated_delete_security_service_metadata
+    ),
+    policy.DocumentedRuleDefault(
+        name=BASE_POLICY_NAME % 'get_metadata',
+        check_str=base.SYSTEM_OR_PROJECT_READER,
+        scope_types=['system', 'project'],
+        description=("Get security service metadata."),
+        operations=[
+            {
+                'method': 'GET',
+                'path': '/security-services/{security_service_id}/metadata',
+            },
+            {
+                'method': 'GET',
+                'path': '/security-services/{security_service_id}/metadata/'
+                        '{key}',
+            }
+        ],
+        deprecated_rule=deprecated_get_security_service_metadata
     ),
 ]
 

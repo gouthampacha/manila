@@ -17,14 +17,16 @@ import six
 from webob import exc
 
 from manila.api.openstack import wsgi
+from manila.api.v2 import metadata
 from manila.api.views import export_locations as export_locations_views
+
 from manila.db import api as db_api
 from manila import exception
 from manila.i18n import _
 from manila import policy
 
 
-class ShareInstanceExportLocationController(wsgi.Controller):
+class ShareInstanceExportLocationController(metadata.MetadataController):
     """The Share Instance Export Locations API controller."""
 
     def __init__(self):

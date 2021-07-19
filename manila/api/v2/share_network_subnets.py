@@ -22,6 +22,7 @@ import webob
 from webob import exc
 
 from manila.api.openstack import wsgi
+from manila.api.v2 import metadata
 from manila.api.views import share_network_subnets as subnet_views
 from manila.db import api as db_api
 from manila import exception
@@ -31,7 +32,8 @@ from manila.share import rpcapi as share_rpcapi
 LOG = log.getLogger(__name__)
 
 
-class ShareNetworkSubnetController(wsgi.Controller):
+class ShareNetworkSubnetController(wsgi.Controller,
+                                   metadata.MetadataController):
     """The Share Network Subnet API controller for the OpenStack API."""
 
     resource_name = 'share_network_subnet'
@@ -196,6 +198,37 @@ class ShareNetworkSubnetController(wsgi.Controller):
 
         return self._view_builder.build_share_network_subnet(
             req, share_network_subnet)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("get_metadata")
+    def index_metadata(self, req, resource_id):
+        """Returns the list of metadata for a share network subnet."""
+        return self._index_metadata(req, resource_id)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def create_metadata(self, req, resource_id, body):
+        return self._create_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_all_metadata(self, req, resource_id, body):
+        return self._update_all_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_metadata_item(self, req, resource_id, body):
+        return self.update_metadata_item(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("get_metadata")
+    def show_metadata(self, req, resource_id, key):
+        return self._show_metadata(req, resource_id, key)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("delete_metadata")
+    def delete_metadata(self, req, resource_id, key):
+        return self._delete_metadata(req, resource_id, key)
 
 
 def create_resource():

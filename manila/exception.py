@@ -510,10 +510,6 @@ class ShareAccessExists(ManilaException):
     message = _("Share access %(access_type)s:%(access)s exists.")
 
 
-class ShareAccessMetadataNotFound(NotFound):
-    message = _("Share access rule metadata does not exist.")
-
-
 class ShareSnapshotAccessExists(InvalidInput):
     message = _("Share snapshot access %(access_type)s:%(access)s exists.")
 
@@ -554,6 +550,15 @@ class ShareSnapshotInstanceNotFound(NotFound):
     message = _("Snapshot instance %(instance_id)s could not be found.")
 
 
+class MetadataNotFound(NotFound):
+    message = _("Metadata could not be found.")
+
+
+class MetadataNotModifiable(ManilaException):
+    code = '403'
+    message = _('This metadata item is not user modifiable.')
+
+
 class ShareSnapshotNotSupported(ManilaException):
     message = _("Share %(share_name)s does not support snapshots.")
 
@@ -585,7 +590,7 @@ class UnmanageInvalidShareSnapshot(InvalidShareSnapshot):
                 "invalid share snapshot: %(reason)s.")
 
 
-class ShareMetadataNotFound(NotFound):
+class MetadataItemNotFound(NotFound):
     message = _("Metadata item is not found.")
 
 

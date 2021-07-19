@@ -375,6 +375,31 @@ def share_instances_get_all_by_share_group_id(context, share_group_id):
     return IMPL.share_instances_get_all_by_share_group_id(
         context, share_group_id)
 
+####################
+
+
+def share_instance_metadata_get(context, share_instance_id):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_instance_metadata_get(context, share_instance_id)
+
+
+def share_instance_metadata_get_item(context, share_instance_id, key):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_instance_metadata_get_item(context,
+                                                 share_instance_id, key)
+
+
+def share_instance_metadata_delete(context, share_instance_id, key):
+    """Delete the given metadata item."""
+    IMPL.share_instance_metadata_delete(context, share_instance_id, key)
+
+
+def share_instance_metadata_update(context, share_instance_id, metadata):
+    """Update metadata if it exists, otherwise create it."""
+    return IMPL.share_instance_metadata_update(context,
+                                               share_instance_id, metadata)
+
+
 ###################
 
 
@@ -549,6 +574,17 @@ def share_access_metadata_delete(context, access_id, key):
     return IMPL.share_access_metadata_delete(context, access_id, key)
 
 
+def share_access_metadata_get(context, access_id):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_access_metadata_get(context, access_id)
+
+
+def share_access_metadata_get_item(context, access_id, key):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_access_metadata_get_item(context,
+                                               access_id, key)
+
+
 ####################
 
 
@@ -590,6 +626,63 @@ def share_snapshot_instance_delete(context, snapshot_instance_id):
     """Delete a share snapshot instance."""
     return IMPL.share_snapshot_instance_delete(context, snapshot_instance_id)
 
+####################
+
+
+def share_snapshot_instance_EL_metadata_get(context, export_location_id):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_snapshot_instance_EL_metadata_get(
+        context, export_location_id)
+
+
+def share_snapshot_instance_EL_metadata_get_item(
+        context, export_location_id, key):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_snapshot_instance_EL_metadata_get_item(
+        context, export_location_id, key)
+
+
+def share_snapshot_instance_EL_metadata_delete(
+        context, export_location_id, key):
+    """Delete the given metadata item."""
+    IMPL.share_snapshot_instance_EL_metadata_delete(
+        context, export_location_id, key)
+
+
+def share_snapshot_instance_EL_metadata_update(
+        context, export_location_id, metadata):
+    """Update metadata if it exists, otherwise create it."""
+    return IMPL.share_snapshot_instance_EL_metadata_update(
+        context, export_location_id, metadata)
+
+####################
+
+
+def share_snapshot_access_rules_metadata_get(context, access_id):
+    """Get all metadata for a share snapshot access rule."""
+    return IMPL.share_snapshot_access_rules_metadata_get(
+        context, access_id)
+
+
+def share_snapshot_access_rules_metadata_get_item(
+        context, access_id, key):
+    """Get metadata item for a share snapshot access rule."""
+    return IMPL.share_snapshot_access_rules_metadata_get_item(
+        context, access_id, key)
+
+
+def share_snapshot_access_rules_metadata_delete(
+        context, access_id, key):
+    """Delete the given metadata item."""
+    IMPL.share_snapshot_access_rules_metadata_delete(
+        context, access_id, key)
+
+
+def share_snapshot_access_rules_metadata_update(
+        context, access_id, metadata):
+    """Update metadata if it exists, otherwise create it."""
+    return IMPL.share_snapshot_access_rules_metadata_update(
+        context, access_id, metadata)
 
 ####################
 
@@ -644,6 +737,8 @@ def share_snapshot_update(context, snapshot_id, values):
 
 
 ###################
+
+
 def share_snapshot_access_create(context, values):
     """Create a share snapshot access from the values dictionary."""
     return IMPL.share_snapshot_access_create(context, values)
@@ -734,7 +829,32 @@ def share_snapshot_instance_export_location_delete(context, el_id):
     return IMPL.share_snapshot_instance_export_location_delete(context, el_id)
 
 
+####################
+
+def share_snapshot_metadata_get(context, share_snapshot_id):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_snapshot_metadata_get(context, share_snapshot_id)
+
+
+def share_snapshot_metadata_get_item(context, share_snapshot_id, key):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_snapshot_metadata_get_item(context,
+                                                 share_snapshot_id, key)
+
+
+def share_snapshot_metadata_delete(context, share_snapshot_id, key):
+    """Delete the given metadata item."""
+    IMPL.share_snapshot_metadata_delete(context, share_snapshot_id, key)
+
+
+def share_snapshot_metadata_update(context, share_snapshot_id, metadata):
+    """Update metadata if it exists, otherwise create it."""
+    return IMPL.share_snapshot_metadata_update(context,
+                                               share_snapshot_id, metadata)
+
+
 ###################
+
 def security_service_create(context, values):
     """Create security service DB record."""
     return IMPL.security_service_create(context, values)
@@ -764,6 +884,29 @@ def security_service_get_all_by_project(context, project_id):
     """Get all security service DB records for the given project."""
     return IMPL.security_service_get_all_by_project(context, project_id)
 
+####################
+
+
+def security_service_metadata_get(context, security_service_id):
+    """Get all metadata for a share snapshot."""
+    return IMPL.security_service_metadata_get(context, security_service_id)
+
+
+def security_service_metadata_get_item(context, security_service_id, key):
+    """Get all metadata for a share snapshot."""
+    return IMPL.security_service_metadata_get_item(
+        context, security_service_id, key)
+
+
+def security_service_metadata_delete(context, security_service_id, key):
+    """Delete the given metadata item."""
+    IMPL.security_service_metadata_delete(context, security_service_id, key)
+
+
+def security_service_metadata_update(context, security_service_id, metadata):
+    """Update metadata if it exists, otherwise create it."""
+    return IMPL.security_service_metadata_update(
+        context, security_service_id, metadata)
 
 ####################
 
@@ -771,6 +914,11 @@ def security_service_get_all_by_project(context, project_id):
 def share_metadata_get(context, share_id):
     """Get all metadata for a share."""
     return IMPL.share_metadata_get(context, share_id)
+
+
+def share_metadata_get_item(context, share_id, key):
+    """Get metadata item for a share."""
+    return IMPL.share_metadata_get_item(context, share_id, key)
 
 
 def share_metadata_delete(context, share_id, key):
@@ -848,6 +996,30 @@ def export_location_metadata_update(context, export_location_uuid, metadata,
 ####################
 
 
+def share_instance_EL_metadata_get(context, export_location_id):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_instance_EL_metadata_get(context, export_location_id)
+
+
+def share_instance_EL_metadata_get_item(context, export_location_id, key):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_instance_EL_metadata_get_item(context,
+                                                    export_location_id, key)
+
+
+def share_instance_EL_metadata_delete(context, export_location_id, key):
+    """Delete the given metadata item."""
+    IMPL.share_instance_EL_metadata_delete(context, export_location_id, key)
+
+
+def share_instance_EL_metadata_update(context, export_location_id, metadata):
+    """Update metadata if it exists, otherwise create it."""
+    return IMPL.share_instance_EL_metadata_update(context,
+                                                  export_location_id, metadata)
+
+####################
+
+
 def share_network_create(context, values):
     """Create a share network DB record."""
     return IMPL.share_network_create(context, values)
@@ -920,6 +1092,30 @@ def count_share_networks(context, project_id, user_id=None,
         session=session,
     )
 
+####################
+
+
+def share_network_metadata_get(context, share_network_id):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_network_metadata_get(context, share_network_id)
+
+
+def share_network_metadata_get_item(context, share_network_id, key):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_network_metadata_get_item(
+        context, share_network_id, key)
+
+
+def share_network_metadata_delete(context, share_network_id, key):
+    """Delete the given metadata item."""
+    IMPL.share_network_metadata_delete(context, share_network_id, key)
+
+
+def share_network_metadata_update(context, share_network_id, metadata):
+    """Update metadata if it exists, otherwise create it."""
+    return IMPL.share_network_metadata_update(
+        context, share_network_id, metadata)
+
 ##################
 
 
@@ -968,6 +1164,34 @@ def share_network_subnet_get_default_subnet(context, share_network_id):
     return IMPL.share_network_subnet_get_default_subnet(context,
                                                         share_network_id)
 
+####################
+
+
+def share_network_subnet_metadata_get(context, share_network_subnet_id):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_network_subnet_metadata_get(
+        context, share_network_subnet_id)
+
+
+def share_network_subnet_metadata_get_item(
+        context, share_network_subnet_id, key):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_network_subnet_metadata_get_item(
+        context, share_network_subnet_id, key)
+
+
+def share_network_subnet_metadata_delete(
+        context, share_network_subnet_id, key):
+    """Delete the given metadata item."""
+    IMPL.share_network_subnet_metadata_delete(
+        context, share_network_subnet_id, key)
+
+
+def share_network_subnet_metadata_update(
+        context, share_network_subnet_id, metadata):
+    """Update metadata if it exists, otherwise create it."""
+    return IMPL.share_network_subnet_metadata_update(
+        context, share_network_subnet_id, metadata)
 
 ##################
 
@@ -1271,16 +1495,42 @@ def get_all_shares_by_share_group(context, share_group_id):
     return IMPL.get_all_shares_by_share_group(context, share_group_id)
 
 
-def count_share_group_snapshots_in_share_group(context, share_group_id):
-    """Returns the number of sg snapshots with the specified share group."""
-    return IMPL.count_share_group_snapshots_in_share_group(
-        context, share_group_id)
-
-
 def count_share_groups_in_share_network(context, share_network_id,
                                         session=None):
     """Return the number of groups with the specified share network."""
     return IMPL.count_share_groups_in_share_network(context, share_network_id)
+
+
+####################
+
+def share_group_metadata_get(context, share_group_id):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_group_metadata_get(context, share_group_id)
+
+
+def share_group_metadata_get_item(context, share_group_id, key):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_group_metadata_get_item(
+        context, share_group_id, key)
+
+
+def share_group_metadata_delete(context, share_group_id, key):
+    """Delete the given metadata item."""
+    IMPL.share_group_metadata_delete(context, share_group_id, key)
+
+
+def share_group_metadata_update(context, share_group_id, metadata):
+    """Update metadata if it exists, otherwise create it."""
+    return IMPL.share_group_metadata_update(
+        context, share_group_id, metadata)
+
+
+####################
+
+def count_share_group_snapshots_in_share_group(context, share_group_id):
+    """Returns the number of sg snapshots with the specified share group."""
+    return IMPL.count_share_group_snapshots_in_share_group(
+        context, share_group_id)
 
 
 def count_share_group_snapshot_members_in_share(context, share_id,
@@ -1352,6 +1602,36 @@ def share_group_snapshot_member_update(context, member_id, values):
 def share_resources_host_update(context, current_host, new_host):
     """Update the host attr of all share resources that are on current_host."""
     return IMPL.share_resources_host_update(context, current_host, new_host)
+
+####################
+
+
+def share_group_snapshot_metadata_get(
+        context, share_group_snapshot_id):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_group_snapshot_metadata_get(
+        context, share_group_snapshot_id)
+
+
+def share_group_snapshot_metadata_get_item(
+        context, share_group_snapshot_id, key):
+    """Get all metadata for a share snapshot."""
+    return IMPL.share_group_snapshot_metadata_get_item(
+        context, share_group_snapshot_id, key)
+
+
+def share_group_snapshot_metadata_delete(
+        context, share_group_snapshot_id, key):
+    """Delete the given metadata item."""
+    IMPL.share_group_snapshot_metadata_delete(
+        context, share_group_snapshot_id, key)
+
+
+def share_group_snapshot_metadata_update(
+        context, share_group_snapshot_id, metadata):
+    """Update metadata if it exists, otherwise create it."""
+    return IMPL.share_group_snapshot_metadata_update(
+        context, share_group_snapshot_id, metadata)
 
 
 ####################

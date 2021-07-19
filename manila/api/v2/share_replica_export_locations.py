@@ -16,6 +16,7 @@ import six
 from webob import exc
 
 from manila.api.openstack import wsgi
+from manila.api.v2 import metadata
 from manila.api.views import export_locations as export_locations_views
 from manila.db import api as db_api
 from manila import exception
@@ -25,8 +26,9 @@ PRE_GRADUATION_VERSION = '2.55'
 GRADUATION_VERSION = '2.56'
 
 
-class ShareReplicaExportLocationController(wsgi.Controller):
-    """The Share Instance Export Locations API controller."""
+class ShareReplicaExportLocationController(wsgi.Controller,
+                                           metadata.MetadataController):
+    """The Share Replica Export Locations API controller."""
 
     def __init__(self):
         self._view_builder_class = export_locations_views.ViewBuilder
@@ -87,6 +89,37 @@ class ShareReplicaExportLocationController(wsgi.Controller):
                                              replica=True)
         except exception.ExportLocationNotFound as e:
             raise exc.HTTPNotFound(explanation=six.text_type(e))
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("get_metadata")
+    def index_metadata(self, req, resource_id):
+        """Returns the list of metadata for a share replica export location."""
+        return self._index_metadata(req, resource_id)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def create_metadata(self, req, resource_id, body):
+        return self._create_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_all_metadata(self, req, resource_id, body):
+        return self._update_all_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_metadata_item(self, req, resource_id, body):
+        return self.update_metadata_item(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("get_metadata")
+    def show_metadata(self, req, resource_id, key):
+        return self._show_metadata(req, resource_id, key)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("delete_metadata")
+    def delete_metadata(self, req, resource_id, key):
+        return self._delete_metadata(req, resource_id, key)
 
 
 def create_resource():

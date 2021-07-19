@@ -25,6 +25,7 @@ from manila.api import common
 from manila.api.openstack import api_version_request as api_version
 from manila.api.openstack import wsgi
 from manila.api.v1 import share_snapshots
+from manila.api.v2 import metadata
 from manila.api.views import share_snapshots as snapshot_views
 from manila.common import constants
 from manila.db import api as db_api
@@ -36,7 +37,9 @@ LOG = log.getLogger(__name__)
 
 
 class ShareSnapshotsController(share_snapshots.ShareSnapshotMixin,
-                               wsgi.Controller, wsgi.AdminActionsMixin):
+                               wsgi.Controller,
+                               metadata.MetadataController,
+                               wsgi.AdminActionsMixin):
     """The Share Snapshots API V2 controller for the OpenStack API."""
 
     resource_name = 'share_snapshot'
@@ -309,23 +312,56 @@ class ShareSnapshotsController(share_snapshots.ShareSnapshotMixin,
     def access_list(self, req, snapshot_id):
         return self._access_list(req, snapshot_id)
 
-    @wsgi.Controller.api_version("2.0")
-    def index(self, req):
-        """Returns a summary list of shares."""
+    def _remove_invalid_query_parameters(self, req):
         if req.api_version_request < api_version.APIVersionRequest("2.36"):
             req.GET.pop('name~', None)
             req.GET.pop('description~', None)
             req.GET.pop('description', None)
+        if req.api_version_request < api_version.APIVersionRequest('2.64'):
+            req.GET.pop('metadata', None)
+
+    @wsgi.Controller.api_version("2.0")
+    def index(self, req):
+        """Returns a summary list of shares."""
+        self._remove_invalid_query_parameters(req)
         return self._get_snapshots(req, is_detail=False)
 
     @wsgi.Controller.api_version("2.0")
     def detail(self, req):
         """Returns a detailed list of shares."""
-        if req.api_version_request < api_version.APIVersionRequest("2.36"):
-            req.GET.pop('name~', None)
-            req.GET.pop('description~', None)
-            req.GET.pop('description', None)
+        self._remove_invalid_query_parameters(req)
         return self._get_snapshots(req, is_detail=True)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("get_metadata")
+    def index_metadata(self, req, resource_id):
+        """Returns the list of metadata for a given share snapshot."""
+        return self._index_metadata(req, resource_id)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def create_metadata(self, req, resource_id, body):
+        return self._create_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_all_metadata(self, req, resource_id, body):
+        return self._update_all_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_metadata_item(self, req, resource_id, body):
+        return self.update_metadata_item(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("get_metadata")
+    def show_metadata(self, req, resource_id, key):
+        return self._show_metadata(req, resource_id, key)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("delete_metadata")
+    def delete_metadata(self, req, resource_id, key):
+        return self._delete_metadata(req, resource_id, key)
 
 
 def create_resource():

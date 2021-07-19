@@ -201,6 +201,34 @@ def require_share_exists(f):
     return wrapper
 
 
+def require_share_snapshot_exists(f):
+    """Decorator to require the specified share snapshot to exist.
+
+    Requires the wrapped function to use context and share_snapshot_id as
+    their first two arguments.
+    """
+    @wraps(f)
+    def wrapper(context, share_snapshot_id, *args, **kwargs):
+        share_snapshot_get(context, share_snapshot_id)
+        return f(context, share_snapshot_id, *args, **kwargs)
+    wrapper.__name__ = f.__name__
+    return wrapper
+
+
+def require_share_group_snapshot_exists(f):
+    """Decorator to require the specified share group snapshot to exist.
+
+    Requires the wrapped function to use context and share_group_snapshot_id as
+    their first two arguments.
+    """
+    @wraps(f)
+    def wrapper(context, share_group_snapshot_id, *args, **kwargs):
+        share_group_snapshot_get(context, share_group_snapshot_id)
+        return f(context, share_group_snapshot_id, *args, **kwargs)
+    wrapper.__name__ = f.__name__
+    return wrapper
+
+
 def require_share_instance_exists(f):
     """Decorator to require the specified share instance to exist.
 
@@ -211,6 +239,90 @@ def require_share_instance_exists(f):
     def wrapper(context, share_instance_id, *args, **kwargs):
         share_instance_get(context, share_instance_id)
         return f(context, share_instance_id, *args, **kwargs)
+    wrapper.__name__ = f.__name__
+    return wrapper
+
+
+def require_share_instance_EL_exists(f):
+    """Decorator to require the specified export location to exist.
+
+    Requires the wrapped function to use context and export_location_id as
+    their first two arguments.
+    """
+    @wraps(f)
+    def wrapper(context, export_location_id, *args, **kwargs):
+        share_export_location_get_by_uuid(context, export_location_id)
+        return f(context, export_location_id, *args, **kwargs)
+    wrapper.__name__ = f.__name__
+    return wrapper
+
+
+def require_share_snapshot_instance_EL_exists(f):
+    """Decorator to require the specified export location to exist.
+
+    Requires the wrapped function to use context and export_location_id as
+    their first two arguments.
+    """
+    @wraps(f)
+    def wrapper(context, export_location_id, *args, **kwargs):
+        share_snapshot_export_locations_get(context, export_location_id)
+        return f(context, export_location_id, *args, **kwargs)
+    wrapper.__name__ = f.__name__
+    return wrapper
+
+
+def require_share_group_exists(f):
+    """Decorator to require the specified share group to exist.
+
+    Requires the wrapped function to use context and share_group_id as
+    their first two arguments.
+    """
+    @wraps(f)
+    def wrapper(context, share_group_id, *args, **kwargs):
+        share_group_get(context, share_group_id)
+        return f(context, share_group_id, *args, **kwargs)
+    wrapper.__name__ = f.__name__
+    return wrapper
+
+
+def require_security_service_exists(f):
+    """Decorator to require the specified security service to exist.
+
+    Requires the wrapped function to use context and security_service_id as
+    their first two arguments.
+    """
+    @wraps(f)
+    def wrapper(context, security_service_id, *args, **kwargs):
+        security_service_get(context, security_service_id)
+        return f(context, security_service_id, *args, **kwargs)
+    wrapper.__name__ = f.__name__
+    return wrapper
+
+
+def require_share_network_exists(f):
+    """Decorator to require the specified share_network to exist.
+
+    Requires the wrapped function to use context and share_network_id as
+    their first two arguments.
+    """
+    @wraps(f)
+    def wrapper(context, share_network_id, *args, **kwargs):
+        share_network_get(context, share_network_id)
+        return f(context, share_network_id, *args, **kwargs)
+    wrapper.__name__ = f.__name__
+    return wrapper
+
+
+def require_share_network_subnet_exists(f):
+    """Decorator to require the specified share network subnet to exist.
+
+    Requires the wrapped function to use context and share_network_subnet_id as
+    their first two arguments.
+    """
+    @wraps(f)
+    def wrapper(context, share_network_subnet_id, *args, **kwargs):
+        share_network_subnet_get(context, share_network_subnet_id)
+        return f(context, share_network_subnet_id, *args, **kwargs)
     wrapper.__name__ = f.__name__
     return wrapper
 
@@ -1841,12 +1953,109 @@ def share_instances_get_all_by_share_group_id(context, share_group_id):
 
     return instances
 
+############################
+# Share Instance Metadata functions
+############################
+
+
+@require_context
+@require_share_instance_exists
+def share_instance_metadata_get(context, share_instance_id):
+    session = get_session()
+    return _share_instance_metadata_get(context,
+                                        share_instance_id, session=session)
+
+
+@require_context
+@require_share_instance_exists
+def share_instance_metadata_delete(context, share_instance_id, key):
+    session = get_session()
+    meta_ref = _share_instance_metadata_get_query(
+        context, share_instance_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
+
+
+@require_context
+@require_share_instance_exists
+def share_instance_metadata_update(context, share_instance_id,
+                                   metadata):
+    session = get_session()
+    return _share_instance_metadata_update(context, share_instance_id,
+                                           metadata, session=session)
+
+
+def share_instance_metadata_get_item(context, share_instance_id,
+                                     key, session=None):
+    session = get_session()
+    row = _share_instance_metadata_get_query(
+        context, share_instance_id, session=session
+        ).filter_by(key=key).first()
+
+    result = {}
+    result[row['key']] = row['value']
+
+    if not result:
+        raise exception.MetadataNotFound()
+    return result
+
+
+def _share_instance_metadata_get_query(context, share_instance_id,
+                                       session=None):
+    session = session or get_session()
+    return (model_query(context, models.ShareInstanceMetadata,
+                        session=session,
+                        read_deleted="no").
+            filter_by(share_instance_id=share_instance_id).
+            options(joinedload('share_instances')))
+
+
+def _share_instance_metadata_get(context, share_instance_id, session=None):
+    session = session or get_session()
+    rows = _share_instance_metadata_get_query(context, share_instance_id,
+                                              session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
+
+
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def _share_instance_metadata_update(context, share_instance_id,
+                                    metadata, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin():
+        meta_ref = None
+        # LOG.warning("dict for _update: %s", dict(metadata))
+        # Now update all existing items with new values, or create new meta
+        # objects
+        for meta_key, meta_value in metadata.items():
+
+            # update the value whether it exists or not
+            item = {"value": meta_value}
+            meta_ref = _share_instance_metadata_get_query(
+                context, share_instance_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
+                meta_ref = models.ShareInstanceMetadata()
+                item.update({"key": meta_key,
+                             "share_instance_id": share_instance_id})
+            meta_ref.update(item)
+            meta_ref.save(session=session)
+
+        return metadata
+
 
 ################
 
 def _share_replica_get_with_filters(context, share_id=None, replica_id=None,
                                     replica_state=None, status=None,
-                                    with_share_server=True, session=None):
+                                    with_share_server=True,
+                                    metadata=None, session=None):
 
     query = model_query(context, models.ShareInstance, session=session,
                         read_deleted="no")
@@ -1868,6 +2077,8 @@ def _share_replica_get_with_filters(context, share_id=None, replica_id=None,
 
     if with_share_server:
         query = query.options(joinedload('share_server'))
+
+    query = query.options(joinedload('share_instance_metadata'))
 
     return query
 
@@ -1970,6 +2181,8 @@ def share_replica_delete(context, share_replica_id, session=None,
 
     share_instance_delete(context, share_replica_id, session=session,
                           need_to_update_usages=need_to_update_usages)
+    session.query(models.ShareInstanceMetadata).filter_by(
+        share_instance_id=share_replica_id).soft_delete()
 
 
 ################
@@ -2356,11 +2569,18 @@ def _share_instance_access_query(context, session, access_id=None,
                        session=session).filter_by(**filters)
 
 
-def _share_access_metadata_get_item(context, access_id, key, session=None):
+@require_context
+def share_access_metadata_get(context, access_id):
+    session = get_session()
+    return _share_access_metadata_get(context,
+                                      access_id, session=session)
+
+
+def share_access_metadata_get_item(context, access_id, key, session=None):
     result = (_share_access_metadata_get_query(
         context, access_id, session=session).filter_by(key=key).first())
     if not result:
-        raise exception.ShareAccessMetadataNotFound(
+        raise exception.MetadataItemNotFound(
             metadata_key=key, access_id=access_id)
     return result
 
@@ -2371,6 +2591,16 @@ def _share_access_metadata_get_query(context, access_id, session=None):
         read_deleted="no").
         filter_by(access_id=access_id).
         options(joinedload('access')))
+
+
+def _share_access_metadata_get(context, access_id, session=None):
+    session = session or get_session()
+    rows = _share_access_metadata_get_query(context, access_id,
+                                            session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
 
 
 @require_context
@@ -2384,12 +2614,13 @@ def share_access_metadata_update(context, access_id, metadata):
 
             # update the value whether it exists or not
             item = {"value": meta_value}
-            try:
-                meta_ref = _share_access_metadata_get_item(
-                    context, access_id, meta_key, session=session)
-            except exception.ShareAccessMetadataNotFound:
+            meta_ref = _share_access_metadata_get_query(
+                context, access_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
                 meta_ref = models.ShareAccessRulesMetadata()
-                item.update({"key": meta_key, "access_id": access_id})
+                item.update({"key": meta_key,
+                             "access_id": access_id})
 
             meta_ref.update(item)
             meta_ref.save(session=session)
@@ -2400,11 +2631,12 @@ def share_access_metadata_update(context, access_id, metadata):
 @require_context
 def share_access_metadata_delete(context, access_id, key):
     session = get_session()
-    with session.begin():
-        metadata = _share_access_metadata_get_item(
-            context, access_id, key, session=session)
-
-        metadata.soft_delete(session)
+    meta_ref = _share_access_metadata_get_query(
+        context, access_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
 
 
 @require_context
@@ -2695,6 +2927,8 @@ def share_instance_access_update(context, access_id, instance_id, updates):
 def share_snapshot_instance_create(context, snapshot_id, values, session=None):
     session = session or get_session()
     values = copy.deepcopy(values)
+    values['metadata'] = _metadata_refs(
+        values.get('metadata'), models.ShareSnapshotMetadata)
 
     _change_size_to_instance_size(values)
 
@@ -2751,6 +2985,8 @@ def share_snapshot_instance_delete(context, snapshot_instance_id,
         snapshot = share_snapshot_get(
             context, snapshot_instance_ref['snapshot_id'], session=session)
         if len(snapshot.instances) == 0:
+            session.query(models.ShareSnapshotMetadata).filter_by(
+                share_snapshot_id=snapshot['id']).soft_delete()
             snapshot.soft_delete(session=session)
 
 
@@ -2843,6 +3079,203 @@ def _set_share_snapshot_instance_data(context, snapshot_instances, session):
     return snapshot_instances
 
 
+############################
+# Share Snapshot Instance EL Metadata functions
+############################
+
+@require_context
+@require_share_snapshot_instance_EL_exists
+def share_snapshot_instance_EL_metadata_get(context, export_location_id):
+    session = get_session()
+    return _share_snapshot_instance_EL_metadata_get(
+        context, export_location_id, session=session)
+
+
+@require_context
+@require_share_snapshot_instance_EL_exists
+def share_snapshot_instance_EL_metadata_delete(
+        context, export_location_id, key):
+    session = get_session()
+    meta_ref = _share_snapshot_instance_EL_metadata_get_query(
+        context, export_location_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
+
+
+@require_context
+@require_share_snapshot_instance_EL_exists
+def share_snapshot_instance_EL_metadata_update(
+        context, export_location_id, metadata):
+    session = get_session()
+    return _share_snapshot_instance_EL_metadata_update(
+        context, export_location_id, metadata, session=session)
+
+
+def share_snapshot_instance_EL_metadata_get_item(
+        context, export_location_id, key, session=None):
+    session = get_session()
+    row = _share_snapshot_instance_EL_metadata_get_query(
+        context, export_location_id, session=session
+        ).filter_by(key=key).first()
+
+    result = {}
+    result[row['key']] = row['value']
+
+    if not result:
+        raise exception.MetadataNotFound()
+    return result
+
+
+def _share_snapshot_instance_EL_metadata_get_query(
+        context, export_location_id, session=None):
+    session = session or get_session()
+    return (model_query(
+        context, models.ShareSnapshotInstanceExportLocationMetadata,
+        session=session,
+        read_deleted="no").
+        filter_by(export_location_id=export_location_id).
+        options(joinedload('share_snapshot_instance_export_locations')))
+
+
+def _share_snapshot_instance_EL_metadata_get(
+        context, export_location_id, session=None):
+    session = session or get_session()
+    rows = _share_snapshot_instance_EL_metadata_get_query(
+        context, export_location_id, session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
+
+
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def _share_snapshot_instance_EL_metadata_update(
+        context, export_location_id, metadata, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin():
+        meta_ref = None
+        # Now update all existing items with new values, or create new meta
+        # objects
+        for meta_key, meta_value in metadata.items():
+
+            # update the value whether it exists or not
+            item = {"value": meta_value}
+            meta_ref = _share_snapshot_instance_EL_metadata_get_query(
+                context, export_location_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
+                meta_ref = models.ShareSnapshotInstanceExportLocationMetadata()
+                item.update({"key": meta_key,
+                             "export_location_id": export_location_id})
+            meta_ref.update(item)
+            meta_ref.save(session=session)
+
+        return metadata
+
+###################
+
+############################
+# Share Snapshot Access Rules Metadata functions
+############################
+
+
+@require_context
+@require_share_snapshot_instance_EL_exists
+def share_snapshot_access_rules_metadata_get(context, access_id):
+    session = get_session()
+    return _share_snapshot_access_rules_metadata_get(
+        context, access_id, session=session)
+
+
+@require_context
+@require_share_snapshot_instance_EL_exists
+def share_snapshot_access_rules_metadata_delete(
+        context, access_id, key):
+    session = get_session()
+    meta_ref = _share_snapshot_access_rules_metadata_get_query(
+        context, access_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
+
+
+@require_context
+@require_share_snapshot_instance_EL_exists
+def share_snapshot_access_rules_metadata_update(
+        context, access_id, metadata):
+    session = get_session()
+    return _share_snapshot_access_rules_metadata_update(
+        context, access_id, metadata, session=session)
+
+
+def share_snapshot_access_rules_metadata_get_item(
+        context, access_id, key, session=None):
+    session = get_session()
+    row = _share_snapshot_access_rules_metadata_get_query(
+        context, access_id, session=session
+        ).filter_by(key=key).first()
+
+    result = {}
+    result[row['key']] = row['value']
+
+    if not result:
+        raise exception.MetadataNotFound()
+    return result
+
+
+def _share_snapshot_access_rules_metadata_get_query(
+        context, access_id, session=None):
+    session = session or get_session()
+    return (model_query(
+        context, models.ShareSnapshotAccessRulesMetadata,
+        session=session,
+        read_deleted="no").
+        filter_by(access_id=access_id).
+        options(joinedload('share_snapshot_access_rules_metadata')))
+
+
+def _share_snapshot_access_rules_metadata_get(
+        context, access_id, session=None):
+    session = session or get_session()
+    rows = _share_snapshot_access_rules_metadata_get_query(
+        context, access_id, session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
+
+
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def _share_snapshot_access_rules_metadata_update(
+        context, access_id, metadata, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin():
+        meta_ref = None
+        # Now update all existing items with new values, or create new meta
+        # objects
+        for meta_key, meta_value in metadata.items():
+
+            # update the value whether it exists or not
+            item = {"value": meta_value}
+            meta_ref = _share_snapshot_access_rules_metadata_get_query(
+                context, access_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
+                meta_ref = models.ShareSnapshotAccessRulesMetadata()
+                item.update({"key": meta_key,
+                             "access_id": access_id})
+            meta_ref.update(item)
+            meta_ref.save(session=session)
+
+        return metadata
+
 ###################
 
 
@@ -2851,6 +3284,8 @@ def share_snapshot_create(context, create_values,
                           create_snapshot_instance=True):
     values = copy.deepcopy(create_values)
     values = ensure_model_dict_has_id(values)
+    values['metadata'] = _metadata_refs(
+        values.get('metadata'), models.ShareSnapshotMetadata)
 
     snapshot_ref = models.ShareSnapshot()
     snapshot_instance_values, snapshot_values = (
@@ -2906,6 +3341,7 @@ def share_snapshot_get(context, snapshot_id, session=None):
               filter_by(id=snapshot_id).
               options(joinedload('share')).
               options(joinedload('instances')).
+              options(joinedload('share_snapshot_metadata')).
               first())
 
     if not result:
@@ -2970,6 +3406,13 @@ def _share_snapshot_get_all_with_filters(context, project_id=None,
         query = query.filter(models.ShareSnapshotInstance.status == (
             filters['status']))
         filters.pop('status')
+        if 'metadata' in filters:
+        for k, v in filters['metadata'].items():
+            # pylint: disable=no-member
+            query = query.filter(
+                or_(models.ShareSnapshot.share_snapshot_metadata.any(
+                    key=k, value=v)))
+filters.pop('metadata')
 
     legal_filter_keys = ('display_name', 'display_name~',
                          'display_description', 'display_description~',
@@ -3065,6 +3508,8 @@ def share_snapshot_instances_status_update(
 @require_context
 def share_snapshot_access_create(context, values):
     values = ensure_model_dict_has_id(values)
+    values['metadata'] = _metadata_refs(
+        values.get('metadata'), models.ShareSnapshotAccessRulesMetadata)
     session = get_session()
     with session.begin():
         access_ref = models.ShareSnapshotAccessMapping()
@@ -3090,6 +3535,13 @@ def _share_snapshot_access_get_query(context, session, filters,
 
     query = model_query(context, models.ShareSnapshotAccessMapping,
                         session=session, read_deleted=read_deleted)
+    if 'metadata' in filters:
+        for k, v in filters['metadata'].items():
+            # pylint: disable=no-member
+            query = query.filter(
+                or_(models.ShareSnapshotAccessMapping.
+                    share_snapshot_access_rules_metadata.any(
+                        key=k, value=v)))
     return query.filter_by(**filters)
 
 
@@ -3106,7 +3558,8 @@ def _share_snapshot_instance_access_get_query(context, session,
             {'share_snapshot_instance_id': share_snapshot_instance_id})
 
     return model_query(context, models.ShareSnapshotInstanceAccessMapping,
-                       session=session).filter_by(**filters)
+                       session=session).filter_by(**filters).options(
+                           joinedload('share_snapshot_access_rules_metadata'))
 
 
 @require_context
@@ -3265,6 +3718,9 @@ def share_snapshot_instance_access_delete(
 def share_snapshot_instance_export_location_create(context, values):
 
     values = ensure_model_dict_has_id(values)
+    values['metadata'] = _metadata_refs(
+        values.get('metadata'),
+        models.ShareSnapshotInstanceExportLocationMetadata)
     session = get_session()
     with session.begin():
         ssiel = models.ShareSnapshotInstanceExportLocation()
@@ -3277,7 +3733,9 @@ def share_snapshot_instance_export_location_create(context, values):
 def _share_snapshot_instance_export_locations_get_query(context, session,
                                                         values):
     query = model_query(context, models.ShareSnapshotInstanceExportLocation,
-                        session=session)
+                        session=session).options(joinedload(
+                            'share_snapshot_instance_export_locations_metadata'
+                            ))
     return query.filter_by(**values)
 
 
@@ -3419,14 +3877,34 @@ def share_metadata_get(context, share_id):
 @require_context
 @require_share_exists
 def share_metadata_delete(context, share_id, key):
-    (_share_metadata_get_query(context, share_id).
-        filter_by(key=key).soft_delete())
+    session = get_session()
+    meta_ref = _share_metadata_get_query(
+        context, share_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.ShareMetadataNotFound()
+    meta_ref.soft_delete(session=session)
 
 
 @require_context
 @require_share_exists
-def share_metadata_update(context, share_id, metadata, delete):
-    return _share_metadata_update(context, share_id, metadata, delete)
+def share_metadata_update(context, share_id, metadata):
+    return _share_metadata_update(context, share_id, metadata)
+
+
+def share_metadata_get_item(
+        context, share_id, key, session=None):
+    session = get_session()
+    row = _share_metadata_get_query(
+        context, share_id, session=session
+        ).filter_by(key=key).first()
+
+    result = {}
+    result[row['key']] = row['value']
+
+    if not result:
+        raise exception.MetadataNotFound()
+    return result
 
 
 def _share_metadata_get_query(context, share_id, session=None):
@@ -3447,54 +3925,221 @@ def _share_metadata_get(context, share_id, session=None):
 
 
 @oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
-def _share_metadata_update(context, share_id, metadata, delete, session=None):
+def _share_metadata_update(context, share_id, metadata, session=None):
     if not session:
         session = get_session()
 
     with session.begin():
-        # Set existing metadata to deleted if delete argument is True
-        if delete:
-            original_metadata = _share_metadata_get(context, share_id,
-                                                    session=session)
-            for meta_key, meta_value in original_metadata.items():
-                if meta_key not in metadata:
-                    meta_ref = _share_metadata_get_item(context, share_id,
-                                                        meta_key,
-                                                        session=session)
-                    meta_ref.soft_delete(session=session)
-
         meta_ref = None
-
         # Now update all existing items with new values, or create new meta
         # objects
         for meta_key, meta_value in metadata.items():
 
             # update the value whether it exists or not
             item = {"value": meta_value}
-
-            try:
-                meta_ref = _share_metadata_get_item(context, share_id,
-                                                    meta_key,
-                                                    session=session)
-            except exception.ShareMetadataNotFound:
+            meta_ref = _share_metadata_get_query(
+                context, share_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
                 meta_ref = models.ShareMetadata()
-                item.update({"key": meta_key, "share_id": share_id})
-
+                item.update({"key": meta_key,
+                             "share_id": share_id})
             meta_ref.update(item)
             meta_ref.save(session=session)
 
         return metadata
 
 
-def _share_metadata_get_item(context, share_id, key, session=None):
-    result = (_share_metadata_get_query(context, share_id, session=session).
-              filter_by(key=key).
-              first())
+############################
+# Share Snapshot Metadata functions
+############################
+
+@require_context
+@require_share_snapshot_exists
+def share_snapshot_metadata_get(context, share_snapshot_id):
+    session = get_session()
+    return _share_snapshot_metadata_get(context,
+                                        share_snapshot_id, session=session)
+
+
+@require_context
+@require_share_snapshot_exists
+def share_snapshot_metadata_delete(context, share_snapshot_id, key):
+    session = get_session()
+    meta_ref = _share_snapshot_metadata_get_query(
+        context, share_snapshot_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
+
+
+@require_context
+@require_share_snapshot_exists
+def share_snapshot_metadata_update(context, share_snapshot_id,
+                                   metadata):
+    session = get_session()
+    return _share_snapshot_metadata_update(context, share_snapshot_id,
+                                           metadata, session=session)
+
+
+def share_snapshot_metadata_get_item(context, share_snapshot_id,
+                                     key, session=None):
+
+    session = get_session()
+    row = _share_snapshot_metadata_get_query(
+        context, share_snapshot_id, session=session
+        ).filter_by(key=key).first()
+    result = {}
+    result[row['key']] = row['value']
 
     if not result:
-        raise exception.ShareMetadataNotFound(metadata_key=key,
-                                              share_id=share_id)
+        raise exception.MetadataNotFound()
     return result
+
+
+def _share_snapshot_metadata_get_query(context, share_snapshot_id,
+                                       session=None):
+    session = session or get_session()
+    return (model_query(context, models.ShareSnapshotMetadata,
+                        session=session,
+                        read_deleted="no").
+            filter_by(share_snapshot_id=share_snapshot_id).
+            options(joinedload('share_snapshot')))
+
+
+def _share_snapshot_metadata_get(context, share_snapshot_id, session=None):
+    session = session or get_session()
+    rows = _share_snapshot_metadata_get_query(context, share_snapshot_id,
+                                              session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
+
+
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def _share_snapshot_metadata_update(context, share_snapshot_id,
+                                    metadata, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin():
+        meta_ref = None
+        # LOG.warning("dict for _update: %s", dict(metadata))
+        # Now update all existing items with new values, or create new meta
+        # objects
+        for meta_key, meta_value in metadata.items():
+
+            # update the value whether it exists or not
+            item = {"value": meta_value}
+            meta_ref = _share_snapshot_metadata_get_query(
+                context, share_snapshot_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
+                meta_ref = models.ShareSnapshotMetadata()
+                item.update({"key": meta_key,
+                             "share_snapshot_id": share_snapshot_id})
+            meta_ref.update(item)
+            meta_ref.save(session=session)
+
+        return metadata
+
+############################
+# Share Instance EL Metadata functions
+############################
+
+
+@require_context
+@require_share_instance_EL_exists
+def share_instance_EL_metadata_get(context, export_location_id):
+    session = get_session()
+    return _share_instance_EL_metadata_get(context,
+                                           export_location_id, session=session)
+
+
+@require_context
+@require_share_instance_EL_exists
+def share_instance_EL_metadata_delete(context, export_location_id, key):
+    session = get_session()
+    meta_ref = _share_instance_EL_metadata_get_query(
+        context, export_location_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
+
+
+@require_context
+@require_share_instance_EL_exists
+def share_instance_EL_metadata_update(context, export_location_id,
+                                      metadata):
+    session = get_session()
+    return _share_instance_EL_metadata_update(context, export_location_id,
+                                              metadata, session=session)
+
+
+def share_instance_EL_metadata_get_item(context, export_location_id,
+                                        key, session=None):
+    session = get_session()
+    row = _share_instance_EL_metadata_get_query(
+        context, export_location_id, session=session
+        ).filter_by(key=key).first()
+
+    result = {}
+    result[row['key']] = row['value']
+
+    if not result:
+        raise exception.MetadataNotFound()
+    return result
+
+
+def _share_instance_EL_metadata_get_query(context, export_location_id,
+                                          session=None):
+    session = session or get_session()
+    return (model_query(context, models.ShareInstanceExportLocationsMetadata,
+                        session=session,
+                        read_deleted="no").
+            filter_by(export_location_id=export_location_id).
+            options(joinedload('share_instance_export_locations')))
+
+
+def _share_instance_EL_metadata_get(context, export_location_id, session=None):
+    session = session or get_session()
+    rows = _share_instance_EL_metadata_get_query(context, export_location_id,
+                                                 session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
+
+
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def _share_instance_EL_metadata_update(context, export_location_id,
+                                       metadata, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin():
+        meta_ref = None
+        # LOG.warning("dict for _update: %s", dict(metadata))
+        # Now update all existing items with new values, or create new meta
+        # objects
+        for meta_key, meta_value in metadata.items():
+
+            # update the value whether it exists or not
+            item = {"value": meta_value}
+            meta_ref = _share_instance_EL_metadata_get_query(
+                context, export_location_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
+                meta_ref = models.ShareInstanceExportLocationsMetadata()
+                item.update({"key": meta_key,
+                             "export_location_id": export_location_id})
+            meta_ref.update(item)
+            meta_ref.save(session=session)
+
+        return metadata
 
 
 ############################
@@ -3622,11 +4267,11 @@ def share_export_locations_update(context, share_instance_id, export_locations,
             export_location = {
                 "path": el,
                 "is_admin_only": False,
-                "metadata": {},
+                "metadata": [],
             }
         elif isinstance(export_location, dict):
             if 'metadata' not in export_location:
-                export_location['metadata'] = {}
+                export_location['metadata'] = []
         else:
             raise exception.ManilaException(
                 _("Wrong export location type '%s'.") % type(export_location))
@@ -3668,6 +4313,12 @@ def share_export_locations_update(context, share_instance_id, export_locations,
             })
             el.save(session=session)
             if el['el_metadata']:
+                # set user_modifiable to False, since this metadata is
+                # created by the service
+                for key, value in el['el_metadata'].items():
+                    el['el_metadata'][key] = {
+                        'value': value,
+                        "user_modifiable": False}
                 export_location_metadata_update(
                     context, el['uuid'], el['el_metadata'], session=session)
 
@@ -3760,18 +4411,23 @@ def export_location_metadata_update(context, export_location_uuid, metadata,
         # that will not take effect using one session and we will rewrite,
         # in that case, single record - first one added with this call.
         session = get_session()
-
+        user_modifiable = True
         if meta_value is None:
             LOG.warning("%s should be properly defined in the driver.",
                         meta_key)
-
-        item = {"value": meta_value, "updated_at": timeutils.utcnow()}
+        if isinstance(meta_value, dict):
+            user_modifiable = meta_value.get('user_modifiable', True)
+            meta_value = meta_value['value']
+        item = {"value": meta_value, "updated_at": timeutils.utcnow(),
+                "user_modifiable": user_modifiable}
 
         meta_ref = _export_location_metadata_get_query(
             context, export_location_uuid, session=session,
         ).filter_by(
             key=meta_key,
         ).first()
+        # if meta_ref and (
+        #     not meta_ref['user_modifiable'] and not context.is_admin):
 
         if not meta_ref:
             meta_ref = models.ShareInstanceExportLocationsMetadata()
@@ -3792,6 +4448,8 @@ def export_location_metadata_update(context, export_location_uuid, metadata,
 @require_context
 def security_service_create(context, values):
     values = ensure_model_dict_has_id(values)
+    values['metadata'] = _metadata_refs(
+        values.get('metadata'), models.SecurityServiceMetadata)
 
     security_service_ref = models.SecurityService()
     security_service_ref.update(values)
@@ -3811,6 +4469,8 @@ def security_service_delete(context, id):
                                                     id,
                                                     session=session)
         security_service_ref.soft_delete(session)
+        session.query(models.SecurityServiceMetadata).filter_by(
+            security_service_id=id).soft_delete()
 
 
 @require_context
@@ -3850,8 +4510,105 @@ def security_service_get_all_by_project(context, project_id):
 def _security_service_get_query(context, session=None):
     if session is None:
         session = get_session()
-    return model_query(context, models.SecurityService, session=session)
+    return model_query(
+        context, models.SecurityService, session=session).options(
+            joinedload('security_service_metadata'))
 
+
+############################
+# Security Service Metadata functions
+############################
+
+@require_context
+@require_security_service_exists
+def security_service_metadata_get(context, security_service_id):
+    session = get_session()
+    return _security_service_metadata_get(context,
+                                          security_service_id, session=session)
+
+
+@require_context
+@require_security_service_exists
+def security_service_metadata_delete(context, security_service_id, key):
+    session = get_session()
+    meta_ref = _security_service_metadata_get_query(
+        context, security_service_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
+
+
+@require_context
+@require_security_service_exists
+def security_service_metadata_update(context, security_service_id,
+                                     metadata):
+    session = get_session()
+    return _security_service_metadata_update(context, security_service_id,
+                                             metadata, session=session)
+
+
+def security_service_metadata_get_item(context, security_service_id,
+                                       key, session=None):
+    session = get_session()
+    row = _security_service_metadata_get_query(
+        context, security_service_id, session=session
+        ).filter_by(key=key).first()
+
+    result = {}
+    result[row['key']] = row['value']
+
+    if not result:
+        raise exception.MetadataNotFound()
+    return result
+
+
+def _security_service_metadata_get_query(context, security_service_id,
+                                         session=None):
+    session = session or get_session()
+    return (model_query(context, models.SecurityServiceMetadata,
+                        session=session,
+                        read_deleted="no").
+            filter_by(security_service_id=security_service_id).
+            options(joinedload('security_services')))
+
+
+def _security_service_metadata_get(context, security_service_id, session=None):
+    session = session or get_session()
+    rows = _security_service_metadata_get_query(context, security_service_id,
+                                                session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
+
+
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def _security_service_metadata_update(context, security_service_id,
+                                      metadata, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin():
+        meta_ref = None
+        # LOG.warning("dict for _update: %s", dict(metadata))
+        # Now update all existing items with new values, or create new meta
+        # objects
+        for meta_key, meta_value in metadata.items():
+
+            # update the value whether it exists or not
+            item = {"value": meta_value}
+            meta_ref = _security_service_metadata_get_query(
+                context, security_service_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
+                meta_ref = models.SecurityServiceMetadata()
+                item.update({"key": meta_key,
+                             "security_service_id": security_service_id})
+            meta_ref.update(item)
+            meta_ref.save(session=session)
+
+        return metadata
 
 ###################
 
@@ -3863,13 +4620,15 @@ def _network_get_query(context, session=None):
                         project_only=True).
             options(joinedload('share_instances'),
                     joinedload('security_services'),
+                    joinedload('share_networks_metadata'),
                     subqueryload('share_network_subnets')))
 
 
 @require_context
 def share_network_create(context, values):
     values = ensure_model_dict_has_id(values)
-
+    values['metadata'] = _metadata_refs(
+        values.get('metadata'), models.ShareNetworkMetadata)
     network_ref = models.ShareNetwork()
     network_ref.update(values)
     session = get_session()
@@ -3884,6 +4643,8 @@ def share_network_delete(context, id):
     with session.begin():
         network_ref = share_network_get(context, id, session=session)
         network_ref.soft_delete(session)
+        session.query(models.ShareNetworkMetadata).filter_by(
+            share_network_id=id).soft_delete()
 
 
 @require_context
@@ -4050,6 +4811,102 @@ def count_share_networks(context, project_id, user_id=None,
     return query.first()[0]
 
 
+############################
+# Share Networks Metadata functions
+############################
+
+@require_context
+@require_share_network_exists
+def share_network_metadata_get(context, share_network_id):
+    session = get_session()
+    return _share_network_metadata_get(context,
+                                       share_network_id, session=session)
+
+
+@require_context
+@require_share_network_exists
+def share_network_metadata_delete(context, share_network_id, key):
+    session = get_session()
+    meta_ref = _share_network_metadata_get_query(
+        context, share_network_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
+
+
+@require_context
+@require_share_network_exists
+def share_network_metadata_update(context, share_network_id,
+                                  metadata):
+    session = get_session()
+    return _share_network_metadata_update(context, share_network_id,
+                                          metadata, session=session)
+
+
+def share_network_metadata_get_item(context, share_network_id,
+                                    key, session=None):
+    session = get_session()
+    row = _share_network_metadata_get_query(
+        context, share_network_id, session=session
+        ).filter_by(key=key).first()
+
+    result = {}
+    result[row['key']] = row['value']
+
+    if not result:
+        raise exception.MetadataNotFound()
+    return result
+
+
+def _share_network_metadata_get_query(context, share_network_id,
+                                      session=None):
+    session = session or get_session()
+    return (model_query(context, models.ShareNetworkMetadata,
+                        session=session,
+                        read_deleted="no").
+            filter_by(share_network_id=share_network_id).
+            options(joinedload('share_networks')))
+
+
+def _share_network_metadata_get(context, share_network_id, session=None):
+    session = session or get_session()
+    rows = _share_network_metadata_get_query(context, share_network_id,
+                                             session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
+
+
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def _share_network_metadata_update(context, share_network_id,
+                                   metadata, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin():
+        meta_ref = None
+        # LOG.warning("dict for _update: %s", dict(metadata))
+        # Now update all existing items with new values, or create new meta
+        # objects
+        for meta_key, meta_value in metadata.items():
+
+            # update the value whether it exists or not
+            item = {"value": meta_value}
+            meta_ref = _share_network_metadata_get_query(
+                context, share_network_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
+                meta_ref = models.ShareNetworkMetadata()
+                item.update({"key": meta_key,
+                             "share_network_id": share_network_id})
+            meta_ref.update(item)
+            meta_ref.save(session=session)
+
+        return metadata
+
+
 ###################
 
 
@@ -4058,13 +4915,15 @@ def _network_subnet_get_query(context, session=None):
     if session is None:
         session = get_session()
     return (model_query(context, models.ShareNetworkSubnet, session=session).
-            options(joinedload('share_servers'), joinedload('share_network')))
+            options(joinedload('share_servers'), joinedload('share_network'),
+            joinedload('share_network_subnets_metadata')))
 
 
 @require_context
 def share_network_subnet_create(context, values):
     values = ensure_model_dict_has_id(values)
-
+    values['metadata'] = _metadata_refs(
+        values.get('metadata'), models.ShareNetworkSubnetMetadata)
     network_subnet_ref = models.ShareNetworkSubnet()
     network_subnet_ref.update(values)
     session = get_session()
@@ -4083,6 +4942,8 @@ def share_network_subnet_delete(context, network_subnet_id):
                                                       network_subnet_id,
                                                       session=session)
         network_subnet_ref.soft_delete(session=session, update_status=True)
+        session.query(models.ShareNetworkSubnetMetadata).filter_by(
+            share_network_subnets_id=id).soft_delete()
 
 
 @require_context
@@ -4139,6 +5000,105 @@ def share_network_subnet_get_default_subnet(context, share_network_id):
     return share_network_subnet_get_by_availability_zone_id(
         context, share_network_id, availability_zone_id=None)
 
+
+############################
+# Share Network Subnets Metadata functions
+############################
+
+
+@require_context
+@require_share_network_subnet_exists
+def share_network_subnet_metadata_get(context, share_network_subnet_id):
+    session = get_session()
+    return _share_network_subnet_metadata_get(
+        context, share_network_subnet_id, session=session)
+
+
+@require_context
+@require_share_network_subnet_exists
+def share_network_subnet_metadata_delete(
+        context, share_network_subnet_id, key):
+    session = get_session()
+    meta_ref = _share_network_subnet_metadata_get_query(
+        context, share_network_subnet_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
+
+
+@require_context
+@require_share_network_subnet_exists
+def share_network_subnet_metadata_update(context, share_network_subnet_id,
+                                         metadata):
+    session = get_session()
+    return _share_network_subnet_metadata_update(
+        context, share_network_subnet_id, metadata, session=session)
+
+
+def share_network_subnet_metadata_get_item(context, share_network_subnet_id,
+                                           key, session=None):
+    session = get_session()
+    row = _share_network_subnet_metadata_get_query(
+        context, share_network_subnet_id, session=session
+        ).filter_by(key=key).first()
+
+    result = {}
+    result[row['key']] = row['value']
+
+    if not result:
+        raise exception.MetadataNotFound()
+    return result
+
+
+def _share_network_subnet_metadata_get_query(context, share_network_subnet_id,
+                                             session=None):
+    session = session or get_session()
+    return (model_query(context, models.ShareNetworkSubnetMetadata,
+                        session=session,
+                        read_deleted="no").
+            filter_by(share_network_subnet_id=share_network_subnet_id).
+            options(joinedload('share_network_subnets')))
+
+
+def _share_network_subnet_metadata_get(
+        context, share_network_subnet_id, session=None):
+    session = session or get_session()
+    rows = _share_network_subnet_metadata_get_query(
+        context, share_network_subnet_id, session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
+
+
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def _share_network_subnet_metadata_update(context, share_network_subnet_id,
+                                          metadata, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin():
+        meta_ref = None
+        # LOG.warning("dict for _update: %s", dict(metadata))
+        # Now update all existing items with new values, or create new meta
+        # objects
+        for meta_key, meta_value in metadata.items():
+
+            # update the value whether it exists or not
+            item = {"value": meta_value}
+            meta_ref = _share_network_subnet_metadata_get_query(
+                context, share_network_subnet_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
+                meta_ref = models.ShareNetworkSubnetMetadata()
+                item.update(
+                    {"key": meta_key,
+                     "share_network_subnet_id": share_network_subnet_id})
+            meta_ref.update(item)
+            meta_ref.save(session=session)
+
+        return metadata
 
 ###################
 
@@ -5042,7 +6002,8 @@ def _share_group_get(context, share_group_id, session=None):
                           project_only=True,
                           read_deleted='no').
               filter_by(id=share_group_id).
-              options(joinedload('share_types')).
+              options(joinedload('share_types'),
+              joinedload('share_group_metadata')).
               first())
 
     if not result:
@@ -5145,7 +6106,8 @@ def share_group_create(context, values):
     share_group = models.ShareGroup()
     if not values.get('id'):
         values['id'] = uuidutils.generate_uuid()
-
+    values['metadata'] = _metadata_refs(
+        values.get('metadata'), models.ShareGroupMetadata)
     mappings = []
     for item in values.get('share_types') or []:
         mapping = models.ShareGroupShareTypeMapping()
@@ -5184,6 +6146,106 @@ def share_group_destroy(context, share_group_id):
         share_group_ref.soft_delete(session)
         session.query(models.ShareGroupShareTypeMapping).filter_by(
             share_group_id=share_group_ref['id']).soft_delete()
+        session.query(models.ShareGroupMetadata).filter_by(
+            share_group_id=share_group_id).soft_delete()
+
+
+############################
+# Share Groups Metadata functions
+############################
+
+@require_context
+@require_share_group_exists
+def share_group_metadata_get(context, share_group_id):
+    session = get_session()
+    return _share_group_metadata_get(context,
+                                     share_group_id, session=session)
+
+
+@require_context
+@require_share_group_exists
+def share_group_metadata_delete(context, share_group_id, key):
+    session = get_session()
+    meta_ref = _share_group_metadata_get_query(
+        context, share_group_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
+
+
+@require_context
+@require_share_group_exists
+def share_group_metadata_update(context, share_group_id,
+                                metadata):
+    session = get_session()
+    return _share_group_metadata_update(context, share_group_id,
+                                        metadata, session=session)
+
+
+def share_group_metadata_get_item(context, share_group_id,
+                                  key, session=None):
+    session = get_session()
+    row = _share_group_metadata_get_query(
+        context, share_group_id, session=session
+        ).filter_by(key=key).first()
+
+    result = {}
+    result[row['key']] = row['value']
+
+    if not result:
+        raise exception.MetadataNotFound()
+    return result
+
+
+def _share_group_metadata_get_query(context, share_group_id,
+                                    session=None):
+    session = session or get_session()
+    return (model_query(context, models.ShareInstanceMetadata,
+                        session=session,
+                        read_deleted="no").
+            filter_by(share_group_id=share_group_id).
+            options(joinedload('share_groups')))
+
+
+def _share_group_metadata_get(context, share_group_id, session=None):
+    session = session or get_session()
+    rows = _share_group_metadata_get_query(context, share_group_id,
+                                           session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
+
+
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def _share_group_metadata_update(context, share_group_id,
+                                 metadata, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin():
+        meta_ref = None
+        # LOG.warning("dict for _update: %s", dict(metadata))
+        # Now update all existing items with new values, or create new meta
+        # objects
+        for meta_key, meta_value in metadata.items():
+
+            # update the value whether it exists or not
+            item = {"value": meta_value}
+            meta_ref = _share_group_metadata_get_query(
+                context, share_group_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
+                meta_ref = models.ShareInstanceMetadata()
+                item.update({"key": meta_key,
+                             "share_group_id": share_group_id})
+            meta_ref.update(item)
+            meta_ref.save(session=session)
+
+        return metadata
+
+############################
 
 
 @require_context
@@ -5313,6 +6375,7 @@ def _share_group_snapshot_get(context, share_group_snapshot_id, session=None):
     ).options(
         joinedload('share_group'),
         joinedload('share_group_snapshot_members'),
+        joinedload('share_group_snapshots_metadata'),
     ).filter_by(
         id=share_group_snapshot_id,
     ).first()
@@ -5334,7 +6397,8 @@ def _share_group_snapshot_get_all(
         sort_dir = 'desc'
 
     query = model_query(
-        context, models.ShareGroupSnapshot, session=session, read_deleted='no')
+        context, models.ShareGroupSnapshot, session=session, read_deleted='no'
+        ).options(joinedload('share_group_snapshots_metadata'),)
 
     # Apply filters
     if not filters:
@@ -5351,6 +6415,13 @@ def _share_group_snapshot_get_all(
         query = query.filter(
             models.ShareGroupSnapshot.project_id == project_id)
 
+    if 'metadata' in filters:
+        for k, v in filters['metadata'].items():
+            # pylint: disable=no-member
+            query = query.filter(
+                or_(models.ShareGroupSnapshot.
+                    share_group_snapshots_metadata.any(
+                        key=k, value=v)))
     try:
         query = apply_sorting(
             models.ShareGroupSnapshot, query, sort_key, sort_dir)
@@ -5403,7 +6474,8 @@ def share_group_snapshot_create(context, values):
     share_group_snapshot = models.ShareGroupSnapshot()
     if not values.get('id'):
         values['id'] = uuidutils.generate_uuid()
-
+    values['metadata'] = _metadata_refs(
+        values.get('metadata'), models.ShareGroupSnapshotsMetadata)
     session = get_session()
     with session.begin():
         share_group_snapshot.update(values)
@@ -5433,6 +6505,108 @@ def share_group_snapshot_destroy(context, share_group_snapshot_id):
         share_group_snap_ref.soft_delete(session)
         session.query(models.ShareSnapshotInstance).filter_by(
             share_group_snapshot_id=share_group_snapshot_id).soft_delete()
+        session.query(models.ShareGroupSnapshotsMetadata).filter_by(
+            share_group_snapshot_id=share_group_snapshot_id).soft_delete()
+
+############################
+# Share Group Snapshots Metadata functions
+############################
+
+
+@require_context
+@require_share_group_snapshot_exists
+def share_group_snapshot_metadata_get(context, share_group_snapshot_id):
+    session = get_session()
+    return _share_group_snapshot_metadata_get(context,
+                                              share_group_snapshot_id,
+                                              session=session)
+
+
+@require_context
+@require_share_group_snapshot_exists
+def share_group_snapshot_metadata_delete(
+        context, share_group_snapshot_id, key):
+    session = get_session()
+    meta_ref = _share_group_snapshot_metadata_get_query(
+        context, share_group_snapshot_id, session=session
+    ).filter_by(key=key).first()
+    if not meta_ref:
+        raise exception.MetadataNotFound()
+    meta_ref.soft_delete(session=session)
+
+
+@require_context
+@require_share_group_snapshot_exists
+def share_group_snapshot_metadata_update(context, share_group_snapshot_id,
+                                         metadata):
+    session = get_session()
+    return _share_group_snapshot_metadata_update(context,
+                                                 share_group_snapshot_id,
+                                                 metadata, session=session)
+
+
+def share_group_snapshot_metadata_get_item(context, share_group_snapshot_id,
+                                           key, session=None):
+    session = get_session()
+    row = _share_group_snapshot_metadata_get_query(
+        context, share_group_snapshot_id, session=session
+        ).filter_by(key=key).first()
+
+    result = {}
+    result[row['key']] = row['value']
+
+    if not result:
+        raise exception.MetadataNotFound()
+    return result
+
+
+def _share_group_snapshot_metadata_get_query(context, share_group_snapshot_id,
+                                             session=None):
+    session = session or get_session()
+    return (model_query(context, models.ShareGroupSnapshotsMetadata,
+                        session=session,
+                        read_deleted="no").
+            filter_by(share_group_snapshot_id=share_group_snapshot_id).
+            options(joinedload('share_group_snapshots')))
+
+
+def _share_group_snapshot_metadata_get(context, share_group_snapshot_id,
+                                       session=None):
+    session = session or get_session()
+    rows = _share_group_snapshot_metadata_get_query(
+        context, share_group_snapshot_id, session=session).all()
+    result = {}
+    for row in rows:
+        result[row['key']] = row['value']
+    return result
+
+
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def _share_group_snapshot_metadata_update(context, share_group_snapshot_id,
+                                          metadata, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin():
+        meta_ref = None
+        # LOG.warning("dict for _update: %s", dict(metadata))
+        # Now update all existing items with new values, or create new meta
+        # objects
+        for meta_key, meta_value in metadata.items():
+
+            # update the value whether it exists or not
+            item = {"value": meta_value}
+            meta_ref = _share_group_snapshot_metadata_get_query(
+                context, share_group_snapshot_id,
+                session=session).filter_by(key=meta_key).first()
+            if not meta_ref:
+                meta_ref = models.ShareGroupSnapshotsMetadata()
+                item.update({"key": meta_key,
+                             "share_group_id": share_group_snapshot_id})
+            meta_ref.update(item)
+            meta_ref.save(session=session)
+
+        return metadata
 
 
 @require_context

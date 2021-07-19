@@ -26,6 +26,7 @@ from webob import exc
 from manila.api import common
 from manila.api.openstack import api_version_request as api_version
 from manila.api.openstack import wsgi
+from manila.api.v2 import metadata
 from manila.api.views import share_networks as share_networks_views
 from manila.common import constants
 from manila.db import api as db_api
@@ -43,7 +44,9 @@ LOG = log.getLogger(__name__)
 QUOTAS = quota.QUOTAS
 
 
-class ShareNetworkController(wsgi.Controller, wsgi.AdminActionsMixin):
+class ShareNetworkController(wsgi.Controller,
+                             metadata.MetadataController,
+                             wsgi.AdminActionsMixin):
     """The Share Network API controller for the OpenStack API."""
 
     resource_name = 'share_network'
@@ -621,6 +624,37 @@ class ShareNetworkController(wsgi.Controller, wsgi.AdminActionsMixin):
     @wsgi.action('reset_status')
     def reset_status(self, req, id, body):
         return self._reset_status(req, id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("get_metadata")
+    def index_metadata(self, req, resource_id):
+        """Returns the list of metadata for a given share network."""
+        return self._index_metadata(req, resource_id)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def create_metadata(self, req, resource_id, body):
+        return self._create_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_all_metadata(self, req, resource_id, body):
+        return self._update_all_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_metadata_item(self, req, resource_id, body):
+        return self.update_metadata_item(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("get_metadata")
+    def show_metadata(self, req, resource_id, key):
+        return self._show_metadata(req, resource_id, key)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("delete_metadata")
+    def delete_metadata(self, req, resource_id, key):
+        return self._delete_metadata(req, resource_id, key)
 
 
 def create_resource():

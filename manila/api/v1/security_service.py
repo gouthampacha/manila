@@ -31,13 +31,13 @@ from manila import policy
 from manila import utils
 
 
-RESOURCE_NAME = 'security_service'
 LOG = log.getLogger(__name__)
 
 
 class SecurityServiceController(wsgi.Controller):
     """The Shares API controller for the OpenStack API."""
 
+    resource_name = "security_service"
     _view_builder_class = security_service_views.ViewBuilder
 
     def show(self, req, id):
@@ -45,7 +45,7 @@ class SecurityServiceController(wsgi.Controller):
         context = req.environ['manila.context']
         try:
             security_service = db.security_service_get(context, id)
-            policy.check_policy(context, RESOURCE_NAME, 'show',
+            policy.check_policy(context, self.resource_name, 'show',
                                 security_service)
         except exception.NotFound:
             raise exc.HTTPNotFound()
@@ -70,7 +70,7 @@ class SecurityServiceController(wsgi.Controller):
             msg = _("Cannot delete security service. It is "
                     "assigned to share network(s)")
             raise exc.HTTPForbidden(explanation=msg)
-        policy.check_policy(context, RESOURCE_NAME,
+        policy.check_policy(context, self.resource_name,
                             'delete', security_service)
         db.security_service_delete(context, id)
 
@@ -78,13 +78,13 @@ class SecurityServiceController(wsgi.Controller):
 
     def index(self, req):
         """Returns a summary list of security services."""
-        policy.check_policy(req.environ['manila.context'], RESOURCE_NAME,
+        policy.check_policy(req.environ['manila.context'], self.resource_name,
                             'index')
         return self._get_security_services(req, is_detail=False)
 
     def detail(self, req):
         """Returns a detailed list of security services."""
-        policy.check_policy(req.environ['manila.context'], RESOURCE_NAME,
+        policy.check_policy(req.environ['manila.context'], self.resource_name,
                             'detail')
         return self._get_security_services(req, is_detail=True)
 
@@ -108,7 +108,7 @@ class SecurityServiceController(wsgi.Controller):
             del search_opts['share_network_id']
         else:
             if context.is_admin and utils.is_all_tenants(search_opts):
-                policy.check_policy(context, RESOURCE_NAME,
+                policy.check_policy(context, self.resource_name,
                                     'get_all_security_services')
                 security_services = db.security_service_get_all(context)
             else:
@@ -173,7 +173,7 @@ class SecurityServiceController(wsgi.Controller):
 
         try:
             security_service = db.security_service_get(context, id)
-            policy.check_policy(context, RESOURCE_NAME, 'update',
+            policy.check_policy(context, self.resource_name, 'update',
                                 security_service)
         except exception.NotFound:
             raise exc.HTTPNotFound()
@@ -187,7 +187,8 @@ class SecurityServiceController(wsgi.Controller):
                             "fields are available for update.") % id
                     raise exc.HTTPForbidden(explanation=msg)
 
-        policy.check_policy(context, RESOURCE_NAME, 'update', security_service)
+        policy.check_policy(
+            context, self.resource_name, 'update', security_service)
         security_service = db.security_service_update(
             context, id, security_service_data)
         return self._view_builder.detail(req, security_service)
@@ -195,7 +196,7 @@ class SecurityServiceController(wsgi.Controller):
     def create(self, req, body):
         """Creates a new security service."""
         context = req.environ['manila.context']
-        policy.check_policy(context, RESOURCE_NAME, 'create')
+        policy.check_policy(context, self.resource_name, 'create')
 
         if not self.is_valid_body(body, 'security_service'):
             raise exc.HTTPUnprocessableEntity()

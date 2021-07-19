@@ -16,6 +16,7 @@
 from webob import exc
 
 from manila.api.openstack import wsgi
+from manila.api.v2 import metadata
 from manila.api.views import share_snapshot_export_locations
 from manila.db import api as db_api
 from manila import exception
@@ -23,7 +24,7 @@ from manila.i18n import _
 from manila import policy
 
 
-class ShareSnapshotExportLocationController(wsgi.Controller):
+class ShareSnapshotExportLocationController(metadata.MetadataController):
 
     def __init__(self):
         self._view_builder_class = (
@@ -59,6 +60,37 @@ class ShareSnapshotExportLocationController(wsgi.Controller):
             msg = _("Snapshot '%s' not found.") % snapshot_id
             raise exc.HTTPNotFound(explanation=msg)
         return snapshot
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("get_metadata")
+    def index_metadata(self, req, resource_id):
+        """Returns the list of metadata for a given share snapshot."""
+        return self._index_metadata(req, resource_id)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def create_metadata(self, req, resource_id, body):
+        return self._create_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_all_metadata(self, req, resource_id, body):
+        return self._update_all_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_metadata_item(self, req, resource_id, body):
+        return self.update_metadata_item(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("get_metadata")
+    def show_metadata(self, req, resource_id, key):
+        return self._show_metadata(req, resource_id, key)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("delete_metadata")
+    def delete_metadata(self, req, resource_id, key):
+        return self._delete_metadata(req, resource_id, key)
 
 
 def create_resource():

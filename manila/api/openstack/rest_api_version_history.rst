@@ -353,3 +353,13 @@ user documentation.
   endpoint: 'update_security_service', 'update_security_service_check' and
   'add_security_service_check'.
 
+2.64
+----
+  Added "user_modifiable" field to share_metadata,
+  share_access_rules_metadata, and
+  share_instance_export_locations_metadata tables.
+  Added Metadata api methods (GET, PUT, POST, DELETE)
+  to Share Replicas, Share Replica Export Location, Snapshots,
+  Snapshot Replicas Export location, Snapshots Access Rules,
+  Share Groups, Share Group Snapshots, Security Services, Share
+  Networks, and Share Network Subnets.

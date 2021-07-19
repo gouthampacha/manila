@@ -17,13 +17,16 @@ from webob import exc
 
 from manila.api import common
 from manila.api.openstack import wsgi
+from manila.api.v2 import metadata
 from manila.api.views import share_instance as instance_view
 from manila import db
 from manila import exception
+
 from manila import share
 
 
-class ShareInstancesController(wsgi.Controller, wsgi.AdminActionsMixin):
+class ShareInstancesController(wsgi.Controller,
+                               wsgi.AdminActionsMixin):
     """The share instances API controller for the OpenStack API."""
 
     resource_name = 'share_instance'

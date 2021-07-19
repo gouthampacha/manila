@@ -20,13 +20,15 @@ import ast
 import webob
 
 from manila.api.openstack import wsgi
+from manila.api.v2 import metadata
 from manila.api.views import share_accesses as share_access_views
 from manila import exception
 from manila.i18n import _
 from manila import share
 
 
-class ShareAccessesController(wsgi.Controller, wsgi.AdminActionsMixin):
+class ShareAccessesController(metadata.MetadataController,
+                              wsgi.AdminActionsMixin):
     """The Share accesses API V2 controller for the OpenStack API."""
 
     resource_name = 'share_access_rule'
@@ -75,6 +77,25 @@ class ShareAccessesController(wsgi.Controller, wsgi.AdminActionsMixin):
             context, share, search_opts)
 
         return self._view_builder.list_view(req, access_rules)
+
+    @wsgi.Controller.api_version("2.45", "2.63")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_all_metadata(self, req, resource_id, body):
+        # Original share access rules metadata update method
+        # behaved as a create method so we override the base
+        # metadata class update_all method to perform as originally
+        # expected.
+        return self._create_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.64")
+    @wsgi.Controller.authorize("update_metadata")
+    def update_all_metadata(self, req, resource_id, body):
+        return self._update_all_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.45", "2.63")
+    @wsgi.Controller.authorize("delete_metadata")
+    def delete_metadata(self, req, resource_id, key):
+        return self._delete_metadata(req, resource_id, key)
 
 
 def create_resource():

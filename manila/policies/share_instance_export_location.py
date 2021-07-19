@@ -38,6 +38,26 @@ deprecated_instance_export_location_show = policy.DeprecatedRule(
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.WALLABY
 )
+deprecated_update_share_instance_export_location_metadata = (
+    policy.DeprecatedRule(
+        name=BASE_POLICY_NAME % 'update_metadata',
+        check_str=base.RULE_DEFAULT,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.WALLABY)
+)
+deprecated_delete_share_instance_export_location_metadata = (
+    policy.DeprecatedRule(
+        name=BASE_POLICY_NAME % 'delete_metadata',
+        check_str=base.RULE_DEFAULT,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.WALLABY)
+)
+deprecated_get_share_instance_export_location_metadata = policy.DeprecatedRule(
+    name=BASE_POLICY_NAME % 'get_metadata',
+    check_str=base.RULE_DEFAULT,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.WALLABY
+)
 
 
 share_export_location_policies = [
@@ -68,6 +88,60 @@ share_export_location_policies = [
             }
         ],
         deprecated_rule=deprecated_instance_export_location_show
+    ),
+    policy.DocumentedRuleDefault(
+        name=BASE_POLICY_NAME % 'update_metadata',
+        check_str=base.SYSTEM_ADMIN_OR_PROJECT_MEMBER,
+        scope_types=['system', 'project'],
+        description=("Update share instance export location metadata."),
+        operations=[
+            {
+                'method': 'PUT',
+                'path': '/share_instances/{share_instance_id}/'
+                        'export_locations/{export_location_id}/metadata',
+            },
+            {
+                'method': 'POST',
+                'path': '/share_instances/{share_instance_id}/'
+                        'export_locations/{export_location_id}/metadata',
+            },
+        ],
+        deprecated_rule=(
+            deprecated_update_share_instance_export_location_metadata)
+    ),
+    policy.DocumentedRuleDefault(
+        name=BASE_POLICY_NAME % 'delete_metadata',
+        check_str=base.SYSTEM_ADMIN_OR_PROJECT_MEMBER,
+        scope_types=['system', 'project'],
+        description=("Delete share instance export location metadata."),
+        operations=[
+            {
+                'method': 'DELETE',
+                'path': '/share_instances/{share_instance_id}/'
+                        'export_locations/{export_location_id}/metadata/{key}',
+            }
+        ],
+        deprecated_rule=(
+            deprecated_delete_share_instance_export_location_metadata)
+    ),
+    policy.DocumentedRuleDefault(
+        name=BASE_POLICY_NAME % 'get_metadata',
+        check_str=base.SYSTEM_OR_PROJECT_READER,
+        scope_types=['system', 'project'],
+        description=("Get share instance export location metadata."),
+        operations=[
+            {
+                'method': 'GET',
+                'path': '/share_instances/{share_instance_id}/'
+                        'export_locations/{export_location_id}/metadata',
+            },
+            {
+                'method': 'GET',
+                'path': '/share_instances/{share_instance_id}/'
+                        'export_locations/{export_location_id}/metadata/{key}',
+            }
+        ],
+        deprecated_rule=deprecated_get_share_instance_export_location_metadata
     ),
 ]
 

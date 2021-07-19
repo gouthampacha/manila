@@ -422,6 +422,29 @@ class ShareInstance(BASE, ManilaBase):
                     'ShareTypes.deleted == "False")')
 
 
+class ShareInstanceMetadata(BASE, ManilaBase):
+    """Represents metadata of share instances."""
+    __tablename__ = "share_instance_metadata"
+
+    id = Column(Integer, primary_key=True)
+    share_instance_id = Column(
+        Integer,
+        ForeignKey("share_instances.id"), nullable=False)
+    key = Column(String(255), nullable=False)
+    value = Column(String(1023), nullable=False)
+    deleted = Column(String(36), default='False')
+    user_modifiable = Column(Boolean, default=True, nullable=False)
+
+    share_instance = orm.relationship(
+        ShareInstance,
+        backref="share_instances",
+        foreign_keys=share_instance_id,
+        primaryjoin="and_("
+                    "ShareInstanceMetadata.share_instance_id == "
+                    "ShareInstance.id,"
+                    "ShareInstanceMetadata.deleted == 0)")
+
+
 class ShareInstanceExportLocations(BASE, ManilaBase):
     """Represents export locations of share instances."""
     __tablename__ = 'share_instance_export_locations'
@@ -459,16 +482,16 @@ class ShareInstanceExportLocationsMetadata(BASE, ManilaBase):
         ForeignKey("share_instance_export_locations.id"), nullable=False)
     key = Column(String(255), nullable=False)
     value = Column(String(1023), nullable=False)
+    deleted = Column(String(36), default='False')
+    user_modifiable = Column(Boolean, default=True, nullable=False)
     export_location = orm.relationship(
         ShareInstanceExportLocations,
         backref="_el_metadata_bare",
         foreign_keys=export_location_id,
-        lazy='immediate',
         primaryjoin="and_("
-                    "%(cls_name)s.export_location_id == "
-                    "ShareInstanceExportLocations.id,"
-                    "%(cls_name)s.deleted == 0)" % {
-                        "cls_name": "ShareInstanceExportLocationsMetadata"})
+                    "ShareInstanceExportLocationsMetadata.export_location_id"
+                    " == ShareInstanceExportLocations.id,"
+                    "ShareInstanceExportLocationsMetadata.deleted == 0)")
 
     @property
     def export_location_uuid(self):
@@ -530,12 +553,13 @@ class ShareMetadata(BASE, ManilaBase):
     id = Column(Integer, primary_key=True)
     key = Column(String(255), nullable=False)
     value = Column(String(1023), nullable=False)
+    deleted = Column(String(36), default='False')
     share_id = Column(String(36), ForeignKey('shares.id'), nullable=False)
+    user_modifiable = Column(Boolean, default=True, nullable=False)
     share = orm.relationship(Share, backref="share_metadata",
                              foreign_keys=share_id,
                              primaryjoin='and_('
-                             'ShareMetadata.share_id == Share.id,'
-                             'ShareMetadata.deleted == 0)')
+                             'ShareMetadata.share_id == Share.id)')
 
 
 class ShareAccessMapping(BASE, ManilaBase):
@@ -580,8 +604,10 @@ class ShareAccessRulesMetadata(BASE, ManilaBase):
     deleted = Column(String(36), default='False')
     key = Column(String(255), nullable=False)
     value = Column(String(1023), nullable=False)
+    deleted = Column(String(36), default='False')
     access_id = Column(String(36), ForeignKey('share_access_map.id'),
                        nullable=False)
+    user_modifiable = Column(Boolean, default=True, nullable=False)
     access = orm.relationship(
         ShareAccessMapping, backref="share_access_rules_metadata",
         foreign_keys=access_id,
@@ -734,6 +760,25 @@ class ShareSnapshot(BASE, ManilaBase):
                              'ShareSnapshot.deleted == "False")')
 
 
+class ShareSnapshotMetadata(BASE, ManilaBase):
+    """Represents a metadata key/value pair for a snapshot."""
+    __tablename__ = 'share_snapshot_metadata'
+    id = Column(Integer, primary_key=True)
+    key = Column(String(255), nullable=False)
+    value = Column(String(1023), nullable=False)
+    deleted = Column(Integer, default=0)
+    share_snapshot_id = Column(String(36), ForeignKey(
+        'share_snapshots.id'), nullable=False)
+    user_modifiable = Column(Boolean, default=True, nullable=False)
+
+    share_snapshot = orm.relationship(
+        ShareSnapshot, backref="share_snapshot_metadata",
+        foreign_keys=share_snapshot_id,
+        primaryjoin='and_('
+        'ShareSnapshotMetadata.share_snapshot_id == ShareSnapshot.id,'
+        'ShareSnapshotMetadata.deleted == 0)')
+
+
 class ShareSnapshotInstance(BASE, ManilaBase):
     """Represents a snapshot of a share."""
     __tablename__ = 'share_snapshot_instances'
@@ -852,6 +897,27 @@ class ShareSnapshotAccessMapping(BASE, ManilaBase):
     )
 
 
+class ShareSnapshotAccessRulesMetadata(BASE, ManilaBase):
+    """Represents a metadata key/value pair for a share access rule."""
+    __tablename__ = 'share_snapshot_access_rules_metadata'
+    id = Column(Integer, primary_key=True)
+    deleted = Column(String(36), default='False')
+    key = Column(String(255), nullable=False)
+    value = Column(String(1023), nullable=False)
+    deleted = Column(Integer, default=0)
+    access_id = Column(String(36), ForeignKey('share_snapshot_access_map.id'),
+                       nullable=False)
+    user_modifiable = Column(Boolean, default=True, nullable=False)
+    access = orm.relationship(
+        ShareSnapshotAccessMapping,
+        backref="share_snapshot_access_rules_metadata",
+        foreign_keys=access_id,
+        primaryjoin='and_('
+        'ShareSnapshotAccessRulesMetadata.access_id == '
+        'ShareSnapshotAccessMapping.id,'
+        'ShareSnapshotAccessRulesMetadata.deleted == "False")')
+
+
 class ShareSnapshotInstanceAccessMapping(BASE, ManilaBase):
     """Represents access to individual share snapshot instances."""
 
@@ -895,6 +961,31 @@ class ShareSnapshotInstanceExportLocation(BASE, ManilaBase):
     deleted = Column(String(36), default='False')
 
 
+class ShareSnapshotInstanceExportLocationMetadata(BASE, ManilaBase):
+    """Represents a metadata key/value pair for snapshot export locations."""
+
+    __tablename__ = 'share_snapshot_instance_export_locations_metadata'
+
+    id = Column(Integer, primary_key=True)
+    key = Column(String(255), nullable=False)
+    value = Column(String(1023), nullable=False)
+    deleted = Column(Integer, default=0)
+    share_snapshot_instance_export_locations_id = (
+        Column(String(36), ForeignKey(
+            'share_snapshot_instance_export_locations.id'), nullable=False))
+    user_modifiable = Column(Boolean, default=True, nullable=False)
+
+    share_snapshot_instance_export_locations = orm.relationship(
+        ShareSnapshotInstanceExportLocation,
+        backref="share_snapshot_instance_export_locations_metadata",
+        foreign_keys=share_snapshot_instance_export_locations_id,
+        primaryjoin='and_('
+        'ShareSnapshotInstanceExportLocationMetadata.'
+        'share_snapshot_instance_export_locations_id =='
+        'ShareSnapshotInstanceExportLocation.id,'
+        'ShareSnapshotInstanceExportLocationMetadata.deleted == 0)')
+
+
 class SecurityService(BASE, ManilaBase):
     """Security service information for manila shares."""
 
@@ -911,6 +1002,25 @@ class SecurityService(BASE, ManilaBase):
     name = Column(String(255), nullable=True)
     description = Column(String(255), nullable=True)
     ou = Column(String(255), nullable=True)
+
+
+class SecurityServiceMetadata(BASE, ManilaBase):
+    """Represents a metadata key/value pair for a security service."""
+    __tablename__ = 'security_service_metadata'
+    id = Column(Integer, primary_key=True)
+    key = Column(String(255), nullable=False)
+    value = Column(String(1023), nullable=False)
+    deleted = Column(Integer, default=0)
+    security_service_id = Column(String(36), ForeignKey(
+        'security_services.id'), nullable=False)
+    user_modifiable = Column(Boolean, default=True, nullable=False)
+
+    security_service = orm.relationship(
+        SecurityService, backref="security_service_metadata",
+        foreign_keys=security_service_id,
+        primaryjoin='and_('
+        'SecurityServiceMetadata.security_service_id == SecurityService.id,'
+        'SecurityServiceMetadata.deleted == 0)')
 
 
 class ShareNetwork(BASE, ManilaBase):
@@ -966,6 +1076,25 @@ class ShareNetwork(BASE, ManilaBase):
         return all(share_servers_support_updating)
 
 
+class ShareNetworkMetadata(BASE, ManilaBase):
+    """Represents a metadata key/value pair for a share network."""
+    __tablename__ = 'share_networks_metadata'
+    id = Column(Integer, primary_key=True)
+    key = Column(String(255), nullable=False)
+    value = Column(String(1023), nullable=False)
+    deleted = Column(Integer, default=0)
+    share_network_id = Column(String(36), ForeignKey(
+        'share_networks.id'), nullable=False)
+    user_modifiable = Column(Boolean, default=True, nullable=False)
+
+    share_network = orm.relationship(
+        ShareNetwork, backref="share_networks_metadata",
+        foreign_keys=share_network_id,
+        primaryjoin='and_('
+        'ShareNetworkMetadata.share_network_id == ShareNetwork.id,'
+        'ShareNetworkMetadata.deleted == 0)')
+
+
 class ShareNetworkSubnet(BASE, ManilaBase):
     """Represents a share network subnet used by some resources."""
 
@@ -1017,8 +1146,29 @@ class ShareNetworkSubnet(BASE, ManilaBase):
         return self.share_network['name']
 
 
+class ShareNetworkSubnetMetadata(BASE, ManilaBase):
+    """Represents a metadata key/value pair for a share network subnet."""
+    __tablename__ = 'share_network_subnets_metadata'
+    id = Column(Integer, primary_key=True)
+    key = Column(String(255), nullable=False)
+    value = Column(String(1023), nullable=False)
+    deleted = Column(Integer, default=0)
+    share_network_subnets_id = Column(String(36), ForeignKey(
+        'share_network_subnets.id'), nullable=False)
+    user_modifiable = Column(Boolean, default=True, nullable=False)
+
+    share_network_subnet = orm.relationship(
+        ShareNetworkSubnet, backref="share_network_subnets_metadata",
+        foreign_keys=share_network_subnets_id,
+        primaryjoin='and_('
+        'ShareNetworkSubnetMetadata.share_network_subnets_id == '
+        'ShareNetworkSubnet.id,'
+        'ShareNetworkSubnetMetadata.deleted == 0)')
+
+
 class ShareServer(BASE, ManilaBase):
     """Represents share server used by share."""
+
     __tablename__ = 'share_servers'
     id = Column(String(36), primary_key=True, nullable=False)
     deleted = Column(String(36), default='False')
@@ -1197,6 +1347,25 @@ class ShareGroup(BASE, ManilaBase):
             return self._availability_zone['name']
 
 
+class ShareGroupMetadata(BASE, ManilaBase):
+    """Represents a metadata key/value pair for a share group."""
+    __tablename__ = 'share_group_metadata'
+    id = Column(Integer, primary_key=True)
+    key = Column(String(255), nullable=False)
+    value = Column(String(1023), nullable=False)
+    deleted = Column(Integer, default=0)
+    share_group_id = Column(String(36), ForeignKey(
+        'share_groups.id'), nullable=False)
+    user_modifiable = Column(Boolean, default=True, nullable=False)
+
+    share_group = orm.relationship(
+        ShareGroup, backref="share_group_metadata",
+        foreign_keys=share_group_id,
+        primaryjoin='and_('
+        'ShareGroupMetadata.share_group_id == ShareGroup.id,'
+        'ShareGroupMetadata.deleted == 0)')
+
+
 class ShareGroupTypeProjects(BASE, ManilaBase):
     """Represent projects associated share group types."""
     __tablename__ = "share_group_type_projects"
@@ -1256,6 +1425,26 @@ class ShareGroupSnapshot(BASE, ManilaBase):
                      'ShareGroupSnapshot.share_group_id == ShareGroup.id,'
                      'ShareGroupSnapshot.deleted == "False")')
     )
+
+
+class ShareGroupSnapshotsMetadata(BASE, ManilaBase):
+    """Represents a metadata key/value pair for a share group snapshot."""
+    __tablename__ = 'share_group_snapshots_metadata'
+    id = Column(Integer, primary_key=True)
+    key = Column(String(255), nullable=False)
+    value = Column(String(1023), nullable=False)
+    deleted = Column(Integer, default=0)
+    share_group_snapshot_id = Column(String(36), ForeignKey(
+        'share_group_snapshots.id'), nullable=False)
+    user_modifiable = Column(Boolean, default=True, nullable=False)
+
+    share_group_snapshot = orm.relationship(
+        ShareGroupSnapshot, backref="share_group_snapshots_metadata",
+        foreign_keys=share_group_snapshot_id,
+        primaryjoin='and_('
+        'ShareGroupSnapshotsMetadata.share_group_snapshot_id == '
+        'ShareGroupSnapshot.id,'
+        'ShareGroupSnapshotsMetadata.deleted == 0)')
 
 
 class ShareGroupTypeShareTypeMapping(BASE, ManilaBase):

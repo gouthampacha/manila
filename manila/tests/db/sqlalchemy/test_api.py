@@ -329,6 +329,68 @@ class ShareAccessDatabaseAPITestCase(test.TestCase):
             metadata = {}
         self.assertEqual(new_metadata, metadata)
 
+    def test_share_access_rules_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.access_rules_1 = db_utils.create_access(
+            share_id=self.share_1['id'])
+        db_api.share_access_metadata_update(
+            self.ctxt, access_id=self.access_rules_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_access_metadata_get(
+                self.ctxt, access_id=self.access_rules_1['id']))
+
+    def test_share_access_rules_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.access_rules_1 = db_utils.create_access(
+            share_id=self.share_1['id'])
+        db_api.share_access_metadata_update(
+            self.ctxt, access_id=self.access_rules_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_access_metadata_get_item(
+                self.ctxt, access_id=self.access_rules_1['id'],
+                key=key))
+
+    def test_share_access_rules_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.access_rules_1 = db_utils.create_access(
+            share_id=self.share_1['id'])
+        db_api.share_access_metadata_update(
+            self.ctxt, access_id=self.access_rules_1['id'],
+            metadata=metadata1)
+        db_api.share_access_metadata_update(
+            self.ctxt, access_id=self.access_rules_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_access_metadata_get(
+                self.ctxt, access_id=self.access_rules_1['id']))
+
+    def test_share_access_rules_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.access_rules_1 = db_utils.create_access(
+            share_id=self.share_1['id'])
+        db_api.share_access_metadata_update(
+            self.ctxt, access_id=self.access_rules_1['id'],
+            metadata=metadata)
+        db_api.share_access_metadata_delete(
+            self.ctxt, access_id=self.access_rules_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_access_metadata_get(
+                self.ctxt, access_id=self.access_rules_1['id']))
+
 
 @ddt.ddt
 class ShareDatabaseAPITestCase(test.TestCase):
@@ -1047,6 +1109,122 @@ class ShareDatabaseAPITestCase(test.TestCase):
                 db_api.share_instance_access_get(
                     self.ctxt, rule_id, instance['id']))
 
+    def test_share_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        db_api.share_metadata_update(
+            self.ctxt, share_id=self.share_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_metadata_get(
+                self.ctxt, share_id=self.share_1['id']))
+
+    def test_share_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        db_api.share_metadata_update(
+            self.ctxt, share_id=self.share_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_metadata_get_item(
+                self.ctxt, share_id=self.share_1['id'],
+                key=key))
+
+    def test_share_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        db_api.share_metadata_update(
+            self.ctxt, share_id=self.share_1['id'],
+            metadata=metadata1)
+        db_api.share_metadata_update(
+            self.ctxt, share_id=self.share_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_metadata_get(
+                self.ctxt, share_id=self.share_1['id']))
+
+    def test_share_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        db_api.share_metadata_update(
+            self.ctxt, share_id=self.share_1['id'],
+            metadata=metadata)
+        db_api.share_metadata_delete(
+            self.ctxt, share_id=self.share_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_metadata_get(
+                self.ctxt, share_id=self.share_1['id']))
+
+    def test_share_instance_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_instance_1 = db_utils.create_share_instance(
+            share_id=self.share_1['id'])
+        db_api.share_instance_metadata_update(
+            self.ctxt, share_instance_id=self.share_instance_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_instance_metadata_get(
+                self.ctxt, share_instance_id=self.share_instance_1['id']))
+
+    def test_share_instance_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_instance_1 = db_utils.create_share_instance(
+            share_id=self.share_1['id'])
+        db_api.share_instance_metadata_update(
+            self.ctxt, share_instance_id=self.share_instance_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_instance_metadata_get_item(
+                self.ctxt, share_instance_id=self.share_instance_1['id'],
+                key=key))
+
+    def test_share_instance_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_instance_1 = db_utils.create_share_instance(
+            share_id=self.share_1['id'])
+        db_api.share_instance_metadata_update(
+            self.ctxt, share_instance_id=self.share_instance_1['id'],
+            metadata=metadata1)
+        db_api.share_instance_metadata_update(
+            self.ctxt, share_instance_id=self.share_instance_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_instance_metadata_get(
+                self.ctxt, share_instance_id=self.share_instance_1['id']))
+
+    def test_share_instance_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_instance_1 = db_utils.create_share_instance(
+            share_id=self.share_1['id'])
+        db_api.share_instance_metadata_update(
+            self.ctxt, share_instance_id=self.share_instance_1['id'],
+            metadata=metadata)
+        db_api.share_instance_metadata_delete(
+            self.ctxt, share_instance_id=self.share_instance_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_instance_metadata_get(
+                self.ctxt, share_instance_id=self.share_instance_1['id']))
+
 
 @ddt.ddt
 class ShareGroupDatabaseAPITestCase(test.TestCase):
@@ -1411,6 +1589,140 @@ class ShareGroupDatabaseAPITestCase(test.TestCase):
         member = db_api.share_group_snapshot_member_get(
             self.ctxt, expected_member['id'])
         self.assertEqual(constants.STATUS_AVAILABLE, member['status'])
+
+    def test_share_group_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_group_1 = db_utils.create_share_group()
+        db_api.share_group_metadata_update(
+            self.ctxt, share_group_id=self.share_group_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_group_metadata_get(
+                self.ctxt, share_group_id=self.share_group_1['id']))
+
+    def test_share_group_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_group_1 = db_utils.create_share_group()
+        db_api.share_group_metadata_update(
+            self.ctxt, share_group_id=self.share_group_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_group_metadata_get_item(
+                self.ctxt, share_group_id=self.share_group_1['id'],
+                key=key))
+
+    def test_share_group_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_group_1 = db_utils.create_share_group()
+        db_api.share_group_metadata_update(
+            self.ctxt, share_group_id=self.share_group_1['id'],
+            metadata=metadata1)
+        db_api.share_group_metadata_update(
+            self.ctxt, share_group_id=self.share_group_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_group_metadata_get(
+                self.ctxt, share_group_id=self.share_group_1['id']))
+
+    def test_share_group_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_group_1 = db_utils.create_share_group()
+        db_api.share_group_metadata_update(
+            self.ctxt, share_group_id=self.share_group_1['id'],
+            metadata=metadata)
+        db_api.share_group_metadata_delete(
+            self.ctxt, share_group_id=self.share_group_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_group_metadata_get(
+                self.ctxt, share_group_id=self.share_group_1['id']))
+
+    def test_share_group_snapshot_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_group_1 = db_utils.create_share_group()
+        self.share_group_snapshot_1 = db_utils.create_share_group_snapshot(
+            share_group_id=self.share_group_1['id'])
+        db_api.share_group_snapshot_metadata_update(
+            self.ctxt,
+            share_group_snapshot_id=self.share_group_snapshot_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_group_snapshot_metadata_get(
+                self.ctxt,
+                share_group_snapshot_id=self.share_group_snapshot_1['id']))
+
+    def test_share_group_snapshot_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_group_1 = db_utils.create_share_group()
+        self.share_group_snapshot_1 = db_utils.create_share_group_snapshot(
+            share_group_id=self.share_group_1['id'])
+        db_api.share_group_snapshot_metadata_update(
+            self.ctxt,
+            share_group_snapshot_id=self.share_group_snapshot_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_group_snapshot_metadata_get_item(
+                self.ctxt,
+                share_group_snapshot_id=self.share_group_snapshot_1['id'],
+                key=key))
+
+    def test_share_group_snapshot_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_group_1 = db_utils.create_share_group()
+        self.share_group_snapshot_1 = db_utils.create_share_group_snapshot(
+            share_group_id=self.share_group_1['id'])
+        db_api.share_group_snapshot_metadata_update(
+            self.ctxt,
+            share_group_snapshot_id=self.share_group_snapshot_1['id'],
+            metadata=metadata1)
+        db_api.share_group_snapshot_metadata_update(
+            self.ctxt,
+            share_group_snapshot_id=self.share_group_snapshot_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_group_snapshot_metadata_get(
+                self.ctxt,
+                share_group_snapshot_id=self.share_group_snapshot_1['id']))
+
+    def test_share_group_snapshot_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_group_1 = db_utils.create_share_group()
+        self.share_group_snapshot_1 = db_utils.create_share_group_snapshot(
+            share_group_id=self.share_group_1['id'])
+        db_api.share_group_snapshot_metadata_update(
+            self.ctxt,
+            share_group_snapshot_id=self.share_group_snapshot_1['id'],
+            metadata=metadata)
+        db_api.share_group_snapshot_metadata_delete(
+            self.ctxt,
+            share_group_snapshot_id=self.share_group_snapshot_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_group_snapshot_metadata_get(
+                self.ctxt,
+                share_group_snapshot_id=self.share_group_snapshot_1['id']))
 
 
 @ddt.ddt
@@ -1817,6 +2129,82 @@ class ShareSnapshotDatabaseAPITestCase(test.TestCase):
 
         self.assertSubDictMatch(values, out[0].to_dict())
 
+    def test_share_snapshot_access_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_1 = db_utils.create_snapshot(share_id=self.share_1['id'])
+        self.share_snapshot_access_1 = db_utils.create_snapshot_access(
+            share_snapshot_id=self.snapshot_1['id'])
+        db_api.share_snapshot_access_rules_metadata_update(
+            self.ctxt,
+            access_id=self.share_snapshot_access_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_snapshot_access_rules_metadata_get(
+                self.ctxt,
+                access_id=self.share_snapshot_access_1['id']))
+
+    def test_share_snapshot_access_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_1 = db_utils.create_snapshot(share_id=self.share_1['id'])
+        self.share_snapshot_access_1 = db_utils.create_snapshot_access(
+            share_snapshot_id=self.snapshot_1['id'])
+        db_api.share_snapshot_access_rules_metadata_update(
+            self.ctxt,
+            access_id=self.share_snapshot_access_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_snapshot_access_rules_metadata_get_item(
+                self.ctxt,
+                access_id=self.share_snapshot_access_1['id'],
+                key=key))
+
+    def test_share_snapshot_access_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_1 = db_utils.create_snapshot(share_id=self.share_1['id'])
+        self.share_snapshot_access_1 = db_utils.create_snapshot_access(
+            share_snapshot_id=self.snapshot_1['id'])
+        db_api.share_snapshot_access_rules_metadata_update(
+            self.ctxt,
+            access_id=self.share_snapshot_access_1['id'],
+            metadata=metadata1)
+        db_api.share_snapshot_access_rules_metadata_update(
+            self.ctxt,
+            access_id=self.share_snapshot_access_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_snapshot_access_rules_metadata_get(
+                self.ctxt,
+                access_id=self.share_snapshot_access_1['id']))
+
+    def test_share_snapshot_access_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_1 = db_utils.create_snapshot(share_id=self.share_1['id'])
+        self.share_snapshot_access_1 = db_utils.create_snapshot_access(
+            share_snapshot_id=self.snapshot_1['id'])
+        db_api.share_snapshot_access_rules_metadata_update(
+            self.ctxt,
+            access_id=self.share_snapshot_access_1['id'],
+            metadata=metadata)
+        db_api.share_snapshot_access_rules_metadata_delete(
+            self.ctxt,
+            access_id=self.share_snapshot_access_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_snapshot_access_rules_metadata_get(
+                self.ctxt,
+                access_id=self.share_snapshot_access_1['id']))
+
     def test_share_snapshot_instance_access_update_state(self):
         access = db_utils.create_snapshot_access(
             share_snapshot_id=self.snapshot_1['id'])
@@ -1902,6 +2290,64 @@ class ShareSnapshotDatabaseAPITestCase(test.TestCase):
             exception.ManilaException,
             db_api.share_snapshot_instance_export_locations_update,
             self.ctxt, snapshot.instance['id'], new_export_locations, False)
+
+    def test_share_snapshot_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_1 = db_utils.create_snapshot(share_id=self.share_1['id'])
+        db_api.share_snapshot_metadata_update(
+            self.ctxt, share_snapshot_id=self.snapshot_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_snapshot_metadata_get(
+                self.ctxt, share_snapshot_id=self.snapshot_1['id']))
+
+    def test_share_snapshot_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_1 = db_utils.create_snapshot(share_id=self.share_1['id'])
+        db_api.share_snapshot_metadata_update(
+            self.ctxt, share_snapshot_id=self.snapshot_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_snapshot_metadata_get_item(
+                self.ctxt, share_snapshot_id=self.snapshot_1['id'],
+                key=key))
+
+    def test_share_snapshot_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_1 = db_utils.create_snapshot(share_id=self.share_1['id'])
+        db_api.share_snapshot_metadata_update(
+            self.ctxt, share_snapshot_id=self.snapshot_1['id'],
+            metadata=metadata1)
+        db_api.share_snapshot_metadata_update(
+            self.ctxt, share_snapshot_id=self.snapshot_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_snapshot_metadata_get(
+                self.ctxt, share_snapshot_id=self.snapshot_1['id']))
+
+    def test_share_snapshot_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_1 = db_utils.create_snapshot(share_id=self.share_1['id'])
+        db_api.share_snapshot_metadata_update(
+            self.ctxt, share_snapshot_id=self.snapshot_1['id'],
+            metadata=metadata)
+        db_api.share_snapshot_metadata_delete(
+            self.ctxt, share_snapshot_id=self.snapshot_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_snapshot_metadata_get(
+                self.ctxt, share_snapshot_id=self.snapshot_1['id']))
 
 
 class ShareExportLocationsDatabaseAPITestCase(test.TestCase):
@@ -2142,6 +2588,162 @@ class ShareInstanceExportLocationsMetadataDatabaseAPITestCase(test.TestCase):
             self.ctxt, export_location_uuid)
 
         self.assertEqual(metadata, result)
+
+    def test_share_instance_EL_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_instance_1 = db_utils.create_share_instance(
+            share_id=self.share_1['id'])
+        self.share_instance_EL_1 = (
+            db_api.share_export_locations_get_by_share_instance_id(
+                share_id=self.share_instance_1['id']))
+        db_api.share_instance_EL_metadata_update(
+            self.ctxt, export_location_id=self.share_instance_EL_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_instance_EL_metadata_get(
+                self.ctxt,
+                export_location_id=self.share_instance_EL_1['id']))
+
+    def test_share_instance_EL_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_instance_1 = db_utils.create_share_instance(
+            share_id=self.share_1['id'])
+        self.share_instance_EL_1 = (
+            db_api.share_export_locations_get_by_share_instance_id(
+                share_id=self.share_instance_1['id']))
+        db_api.share_instance_EL_metadata_update(
+            self.ctxt, export_location_id=self.share_instance_EL_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_instance_EL_metadata_get_item(
+                self.ctxt, export_location_id=self.share_instance_EL_1['id'],
+                key=key))
+
+    def test_share_instance_EL_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_instance_1 = db_utils.create_share_instance(
+            share_id=self.share_1['id'])
+        self.share_instance_EL_1 = (
+            db_api.share_export_locations_get_by_share_instance_id(
+                share_id=self.share_instance_1['id']))
+        db_api.share_instance_EL_metadata_update(
+            self.ctxt, export_location_id=self.share_instance_EL_1['id'],
+            metadata=metadata1)
+        db_api.share_instance_EL_metadata_update(
+            self.ctxt, export_location_id=self.share_instance_EL_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_instance_EL_metadata_get(
+                self.ctxt,
+                export_location_id=self.share_instance_EL_1['id']))
+
+    def test_share_instance_EL_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_instance_1 = db_utils.create_share_instance(
+            share_id=self.share_1['id'])
+        self.share_instance_EL_1 = (
+            db_api.share_export_locations_get_by_share_instance_id(
+                share_id=self.share_instance_1['id']))
+        db_api.share_instance_EL_metadata_update(
+            self.ctxt, export_location_id=self.share_instance_EL_1['id'],
+            metadata=metadata)
+        db_api.share_instance_EL_metadata_delete(
+            self.ctxt, export_location_id=self.share_instance_EL_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_instance_EL_metadata_get(
+                self.ctxt,
+                export_location_id=self.share_instance_EL_1['id']))
+
+    def test_share_snapshot_instance_EL_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_instance = db_utils.create_snapshot_instance()
+        self.snapshot_instance_EL_1 = (
+            db_utils.create_snapshot_instance_export_locations(
+                self.snapshot_instance['id']))
+        db_api.share_snapshot_instance_EL_metadata_update(
+            self.ctxt,
+            export_location_id=self.snapshot_instance_EL_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_snapshot_instance_EL_metadata_get(
+                self.ctxt, export_location_id=self.snapshot_1['id']))
+
+    def test_share_snapshot_instance_EL_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_instance = db_utils.create_snapshot_instance()
+        self.snapshot_instance_EL_1 = (
+            db_utils.create_snapshot_instance_export_locations(
+                self.snapshot_instance['id']))
+        db_api.share_snapshot_instance_EL_metadata_update(
+            self.ctxt,
+            export_location_id=self.snapshot_instance_EL_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_snapshot_instance_EL_metadata_get_item(
+                self.ctxt,
+                export_location_id=self.snapshot_instance_EL_1['id'],
+                key=key))
+
+    def test_share_snapshot_instance_EL_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_instance = db_utils.create_snapshot_instance()
+        self.snapshot_instance_EL_1 = (
+            db_utils.create_snapshot_instance_export_locations(
+                self.snapshot_instance['id']))
+        db_api.share_snapshot_instance_EL_metadata_update(
+            self.ctxt,
+            export_location_id=self.snapshot_instance_EL_1['id'],
+            metadata=metadata1)
+        db_api.share_snapshot_instance_EL_metadata_update(
+            self.ctxt,
+            export_location_id=self.snapshot_instance_EL_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_snapshot_instance_EL_metadata_get(
+                self.ctxt,
+                export_location_id=self.snapshot_instance_EL_1['id']))
+
+    def test_share_snapshot_instance_EL_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.snapshot_instance = db_utils.create_snapshot_instance()
+        self.snapshot_instance_EL_1 = (
+            db_utils.create_snapshot_instance_export_locations(
+                self.snapshot_instance['id']))
+        db_api.share_snapshot_instance_EL_metadata_update(
+            self.ctxt,
+            export_location_id=self.snapshot_instance_EL_1['id'],
+            metadata=metadata)
+        db_api.share_snapshot_instance_EL_metadata_delete(
+            self.ctxt,
+            export_location_id=self.snapshot_instance_EL_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_snapshot_instance_EL_metadata_get(
+                self.ctxt,
+                export_location_id=self.snapshot_instance_EL_1['id']))
 
 
 @ddt.ddt
@@ -2693,6 +3295,76 @@ class ShareNetworkDatabaseAPITestCase(BaseDatabaseAPITestCase):
         self.assertEqual(
             association['security_service_id'], new_sec_service['id'])
 
+    def test_share_network_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        db_api.share_network_metadata_update(
+            self.fake_context,
+            share_network_id=self.share_network_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_network_metadata_get(
+                self.fake_context,
+                share_network_id=self.share_network_1['id']))
+
+    def test_share_network_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        db_api.share_network_metadata_update(
+            self.fake_context, share_network_id=self.share_network_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_network_metadata_get_item(
+                self.fake_context, share_network_id=self.share_network_1['id'],
+                key=key))
+
+    def test_share_network_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        db_api.share_network_metadata_update(
+            self.fake_context,
+            share_network_id=self.share_network_1['id'],
+            metadata=metadata1)
+        db_api.share_network_metadata_update(
+            self.fake_context,
+            share_network_id=self.share_network_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_network_metadata_get(
+                self.fake_context,
+                share_network_id=self.share_network_1['id']))
+
+    def test_share_network_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        db_api.share_network_metadata_update(
+            self.fake_context,
+            share_network_id=self.share_network_1['id'],
+            metadata=metadata)
+        db_api.share_network_metadata_delete(
+            self.fake_context,
+            share_network_id=self.share_network_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_network_metadata_get(
+                self.fake_context,
+                share_network_id=self.share_network_1['id']))
+
 
 @ddt.ddt
 class ShareNetworkSubnetDatabaseAPITestCase(BaseDatabaseAPITestCase):
@@ -2857,6 +3529,86 @@ class ShareNetworkSubnetDatabaseAPITestCase(BaseDatabaseAPITestCase):
 
         self._check_fields(expected=self.subnet_dict, actual=result)
 
+    def test_share_network_subnet_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        self.share_network_subnet_1 = db_utils.create_share_network_subnet(
+            share_network_id=self.share_network_1['id'])
+        db_api.share_network_subnet_metadata_update(
+            self.fake_context,
+            share_network_subnet_id=self.share_network_subnet_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.share_network_subnet_metadata_get(
+                self.fake_context,
+                share_network_subnet_id=self.share_network_subnet_1['id']))
+
+    def test_share_network_subnet_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        self.share_network_subnet_1 = db_utils.create_share_network_subnet(
+            share_network_id=self.share_network_1['id'])
+        db_api.share_network_subnet_metadata_update(
+            self.fake_context,
+            share_network_subnet_id=self.share_network_subnet_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.share_network_subnet_metadata_get_item(
+                self.fake_context,
+                share_network_subnet_id=self.share_network_subnet_1['id'],
+                key=key))
+
+    def test_share_network_subnet_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        self.share_network_subnet_1 = db_utils.create_share_network_subnet(
+            share_network_id=self.share_network_1['id'])
+        db_api.share_network_subnet_metadata_update(
+            self.fake_context,
+            share_network_subnet_id=self.share_network_subnet_1['id'],
+            metadata=metadata1)
+        db_api.share_network_subnet_metadata_update(
+            self.fake_context,
+            share_network_subnet_id=self.share_network_subnet_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.share_network_subnet_metadata_get(
+                self.fake_context,
+                share_network_subnet_id=self.share_network_subnet_1['id']))
+
+    def test_share_network_subnet_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        self.share_network_subnet_1 = db_utils.create_share_network_subnet(
+            share_network_id=self.share_network_1['id'])
+        db_api.share_network_subnet_metadata_update(
+            self.fake_context,
+            share_network_subnet_id=self.share_network_subnet_1['id'],
+            metadata=metadata)
+        db_api.share_network_subnet_metadata_delete(
+            self.fake_context,
+            share_network_subnet_id=self.share_network_subnet_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.share_network_subnet_metadata_get(
+                self.fake_context,
+                share_network_subnet_id=self.share_network_subnet_1['id']))
+
 
 @ddt.ddt
 class SecurityServiceDatabaseAPITestCase(BaseDatabaseAPITestCase):
@@ -3011,6 +3763,86 @@ class SecurityServiceDatabaseAPITestCase(BaseDatabaseAPITestCase):
 
         self.assertEqual(1, len(result2))
         self._check_expected_fields(result2[0], dict2)
+
+    def test_security_service_metadata_get(self):
+        metadata = {'a': 'b', 'c': 'd'}
+
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        self.security_service_1 = db_utils.create_security_service(
+            share_network_id=self.share_network_1['id'])
+        db_api.security_service_metadata_update(
+            self.fake_context,
+            security_service_id=self.security_service_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            metadata, db_api.security_service_metadata_get(
+                self.fake_context,
+                security_service_id=self.security_service_1['id']))
+
+    def test_security_service_metadata_get_item(self):
+        metadata = {'a': 'b', 'c': 'd'}
+        key = 'a'
+        shouldbe = {'a': 'b'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        self.security_service_1 = db_utils.create_security_service(
+            share_network_id=self.share_network_1['id'])
+        db_api.security_service_metadata_update(
+            self.fake_context,
+            security_service_id=self.security_service_1['id'],
+            metadata=metadata)
+        self.assertEqual(
+            shouldbe, db_api.security_service_metadata_get_item(
+                self.fake_context,
+                security_service_id=self.security_service_1['id'],
+                key=key))
+
+    def test_security_service_metadata_update(self):
+        metadata1 = {'a': '1', 'c': '2'}
+        metadata2 = {'a': '3', 'd': '5'}
+        should_be = {'a': '3', 'c': '2', 'd': '5'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        self.security_service_1 = db_utils.create_security_service(
+            share_network_id=self.share_network_1['id'])
+        db_api.security_service_metadata_update(
+            self.fake_context,
+            security_service_id=self.security_service_1['id'],
+            metadata=metadata1)
+        db_api.security_service_metadata_update(
+            self.fake_context,
+            security_service_id=self.security_service_1['id'],
+            metadata=metadata2)
+        self.assertEqual(
+            should_be, db_api.security_service_metadata_get(
+                self.fake_context,
+                security_service_id=self.security_service_1['id']))
+
+    def test_security_service_metadata_delete(self):
+        key = 'a'
+        metadata = {'a': '1', 'c': '2'}
+        should_be = {'c': '2'}
+        self.share_1 = db_utils.create_share(size=1)
+        self.share_network_1 = db_utils.create_share_network(
+            share_id=self.share_1['id'])
+        self.security_service_1 = db_utils.create_security_service(
+            share_network_id=self.share_network_1['id'])
+        db_api.security_service_metadata_update(
+            self.fake_context,
+            security_service_id=self.security_service_1['id'],
+            metadata=metadata)
+        db_api.security_service_metadata_delete(
+            self.fake_context,
+            security_service_id=self.security_service_1['id'],
+            key=key)
+        self.assertEqual(
+            should_be, db_api.security_service_metadata_get(
+                self.fake_context,
+                security_service_id=self.security_service_1['id']))
 
 
 @ddt.ddt

@@ -18,7 +18,6 @@ from unittest import mock
 import ddt
 import webob
 
-from manila.api.v2 import share_access_metadata
 from manila.api.v2 import share_accesses
 from manila import context
 from manila import exception
@@ -32,7 +31,7 @@ from oslo_utils import uuidutils
 @ddt.ddt
 class ShareAccessesMetadataAPITest(test.TestCase):
 
-    def _get_request(self, version="2.45", use_admin_context=True):
+    def _get_request(self, version="2.46", use_admin_context=True):
         req = fakes.HTTPRequest.blank(
             '/v2/share-access-rules',
             version=version, use_admin_context=use_admin_context)
@@ -41,7 +40,7 @@ class ShareAccessesMetadataAPITest(test.TestCase):
     def setUp(self):
         super(ShareAccessesMetadataAPITest, self).setUp()
         self.controller = (
-            share_access_metadata.ShareAccessMetadataController())
+            share_accesses.ShareAccessesController())
         self.access_controller = (
             share_accesses.ShareAccessesController())
         self.resource_name = self.controller.resource_name
@@ -60,7 +59,9 @@ class ShareAccessesMetadataAPITest(test.TestCase):
     @ddt.unpack
     def test_update_metadata(self, body):
         url = self._get_request()
-        update = self.controller.update(url, self.access['id'], body=body)
+        #import pdb; pdb.set_trace()
+        update = self.controller.update_all_metadata(
+            url, self.access['id'], body=body)
         self.assertEqual(body, update)
 
         show_result = self.access_controller.show(url, self.access['id'])
@@ -72,9 +73,9 @@ class ShareAccessesMetadataAPITest(test.TestCase):
     def test_delete_metadata(self):
         body = {'metadata': {'test_key3': 'test_v3'}}
         url = self._get_request()
-        self.controller.update(url, self.access['id'], body=body)
+        self.controller.update_all_metadata(url, self.access['id'], body=body)
 
-        self.controller.delete(url, self.access['id'], 'test_key3')
+        self.controller.delete_metadata(url, self.access['id'], 'test_key3')
         show_result = self.access_controller.show(url, self.access['id'])
 
         self.assertEqual(1, len(show_result))
@@ -84,14 +85,14 @@ class ShareAccessesMetadataAPITest(test.TestCase):
     def test_update_access_metadata_with_access_id_not_found(self):
         self.assertRaises(
             webob.exc.HTTPNotFound,
-            self.controller.update,
+            self.controller.update_all_metadata,
             self._get_request(), 'not_exist_access_id',
             {'metadata': {'key1': 'v1'}})
 
     def test_update_access_metadata_with_body_error(self):
         self.assertRaises(
             webob.exc.HTTPBadRequest,
-            self.controller.update,
+            self.controller.update_all_metadata,
             self._get_request(), self.access['id'],
             {'metadata_error': {'key1': 'v1'}})
 
@@ -103,25 +104,25 @@ class ShareAccessesMetadataAPITest(test.TestCase):
     def test_update_metadata_with_invalid_metadata(self, metadata):
         self.assertRaises(
             webob.exc.HTTPBadRequest,
-            self.controller.update,
+            self.controller.update_all_metadata,
             self._get_request(), self.access['id'],
             {'metadata': metadata})
 
     def test_delete_access_metadata_not_found(self):
         body = {'metadata': {'test_key_exist': 'test_v_exsit'}}
-        update = self.controller.update(
+        update = self.controller.update_all_metadata(
             self._get_request(), self.access['id'], body=body)
         self.assertEqual(body, update)
         self.assertRaises(
             webob.exc.HTTPNotFound,
-            self.controller.delete,
+            self.controller.delete_metadata,
             self._get_request(), self.access['id'], 'key1')
 
     @ddt.data('1.0', '2.0', '2.8', '2.44')
     def test_update_metadata_unsupported_version(self, version):
         self.assertRaises(
             exception.VersionNotFoundForAPIMethod,
-            self.controller.update,
+            self.controller.update_all_metadata,
             self._get_request(version=version), self.access['id'],
             {'metadata': {'key1': 'v1'}})
 
@@ -129,5 +130,8 @@ class ShareAccessesMetadataAPITest(test.TestCase):
     def test_delete_metadata_with_unsupported_version(self, version):
         self.assertRaises(
             exception.VersionNotFoundForAPIMethod,
-            self.controller.delete,
+            self.controller.delete_metadata,
             self._get_request(version=version), self.access['id'], 'key1')
+
+# change update to create (persist behavior)
+# test index, update_all, show fail before 2.64

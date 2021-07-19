@@ -562,7 +562,11 @@ shares_policies = [
             {
                 'method': 'PUT',
                 'path': '/shares/{share_id}/metadata',
-            }
+            },
+            {
+                'method': 'POST',
+                'path': '/shares/{share_id}/metadata',
+            },
         ],
         deprecated_rule=deprecated_share_update_metadata
     ),
@@ -588,6 +592,10 @@ shares_policies = [
             {
                 'method': 'GET',
                 'path': '/shares/{share_id}/metadata',
+            },
+            {
+                'method': 'GET',
+                'path': '/shares/{share_id}/metadata/{key}',
             }
         ],
         deprecated_rule=deprecated_share_get_metadata

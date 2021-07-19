@@ -171,13 +171,22 @@ REST_API_VERSION_HISTORY = """
              actions on the share network's endpoint:
              'update_security_service', 'update_security_service_check' and
              'add_security_service_check'.
+    * 2.64 - Added "user_modifiable" field to share_metadata,
+             share_access_rules_metadata, and
+             share_instance_export_locations_metadata tables.
+             Added Metadata api methods (GET, PUT, POST, DELETE)
+             to Share Replicas, Share Replica Export Location, Snapshots,
+             Snapshot Replicas Export location, Snapshots Access Rules,
+             Share Groups, Share Group Snapshots, Security Services, Share
+             Networks, and Share Network Subnets.
+
 """
 
 # The minimum and maximum versions of the API supported
 # The default api version request is defined to be the
 # minimum version of the API supported.
 _MIN_API_VERSION = "2.0"
-_MAX_API_VERSION = "2.63"
+_MAX_API_VERSION = "2.64"
 DEFAULT_API_VERSION = _MIN_API_VERSION
 
 

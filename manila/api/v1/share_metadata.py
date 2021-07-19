@@ -56,7 +56,7 @@ class ShareMetadataController(object):
         new_metadata = self._update_share_metadata(context,
                                                    share_id,
                                                    metadata,
-                                                   delete=False)
+                                                   )
 
         return {'metadata': new_metadata}
 
@@ -79,7 +79,7 @@ class ShareMetadataController(object):
         self._update_share_metadata(context,
                                     share_id,
                                     meta_item,
-                                    delete=False)
+                                    )
 
         return {'meta': meta_item}
 
@@ -91,19 +91,22 @@ class ShareMetadataController(object):
             raise exc.HTTPBadRequest(explanation=expl)
 
         context = req.environ['manila.context']
+        metaref = self._get_metadata(context, share_id)
+        for key in metaref:
+            self.delete(context, key)
         new_metadata = self._update_share_metadata(context, share_id,
-                                                   metadata, delete=True)
+                                                   metadata)
         return {'metadata': new_metadata}
 
     def _update_share_metadata(self, context,
                                share_id, metadata,
-                               delete=False):
+                               ):
         try:
             share = self.share_api.get(context, share_id)
             return self.share_api.update_share_metadata(context,
                                                         share,
                                                         metadata,
-                                                        delete)
+                                                        )
         except exception.NotFound:
             msg = _('share does not exist')
             raise exc.HTTPNotFound(explanation=msg)

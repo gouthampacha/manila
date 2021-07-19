@@ -16,6 +16,7 @@
 from webob import exc
 
 from manila.api.openstack import wsgi
+from manila.api.v2 import metadata
 from manila.api.views import share_snapshot_instances as instance_view
 from manila import db
 from manila import exception
@@ -23,8 +24,8 @@ from manila.i18n import _
 from manila import share
 
 
-class ShareSnapshotInstancesController(wsgi.Controller,
-                                       wsgi.AdminActionsMixin):
+class ShareSnapshotInstancesController(wsgi.AdminActionsMixin,
+                                       metadata.MetadataController):
     """The share snapshot instances API controller for the OpenStack API."""
 
     resource_name = 'share_snapshot_instance'

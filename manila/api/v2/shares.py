@@ -24,6 +24,7 @@ from manila.api.openstack import wsgi
 from manila.api.v1 import share_manage
 from manila.api.v1 import share_unmanage
 from manila.api.v1 import shares
+from manila.api.v2 import metadata
 from manila.api.views import share_accesses as share_access_views
 from manila.api.views import share_migration as share_migration_views
 from manila.api.views import shares as share_views
@@ -37,10 +38,11 @@ from manila import utils
 LOG = log.getLogger(__name__)
 
 
-class ShareController(shares.ShareMixin,
+class ShareController(wsgi.Controller,
+                      shares.ShareMixin,
                       share_manage.ShareManageMixin,
                       share_unmanage.ShareUnmanageMixin,
-                      wsgi.Controller,
+                      metadata.MetadataController,
                       wsgi.AdminActionsMixin):
     """The Shares API v2 controller for the OpenStack API."""
     resource_name = 'share'
@@ -473,6 +475,37 @@ class ShareController(shares.ShareMixin,
             req.GET.pop('description', None)
 
         return self._get_shares(req, is_detail=True)
+
+    @wsgi.Controller.api_version("2.0")
+    @wsgi.Controller.authorize("get_share_metadata")
+    def index_metadata(self, req, resource_id):
+        """Returns the list of metadata for a given share."""
+        return self._index(req, resource_id)
+
+    @wsgi.Controller.api_version("2.0")
+    @wsgi.Controller.authorize("update_share_metadata")
+    def create_metadata(self, req, resource_id, body):
+        return self._create(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.0")
+    @wsgi.Controller.authorize("update_share_metadata")
+    def update_all_metadata(self, req, resource_id, body):
+        return self._update_all_metadata(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.0")
+    @wsgi.Controller.authorize("update_share_metadata")
+    def update_metadata_item(self, req, resource_id, body):
+        return self._update_metadata_item(req, resource_id, body)
+
+    @wsgi.Controller.api_version("2.0")
+    @wsgi.Controller.authorize("get_share_metadata")
+    def show_metadata(self, req, resource_id, key):
+        return self._show(req, resource_id, key)
+
+    @wsgi.Controller.api_version("2.0")
+    @wsgi.Controller.authorize("delete_share_metadata")
+    def delete_metadata(self, req, resource_id, key):
+        return self._delete(req, resource_id, key)
 
 
 def create_resource():

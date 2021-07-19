@@ -196,7 +196,7 @@ class ShareApiTest(test.TestCase):
         self.assertEqual(2, security_service.policy.check_policy.call_count)
         security_service.policy.check_policy.assert_has_calls([
             mock.call(req.environ['manila.context'],
-                      security_service.RESOURCE_NAME, 'update', new)
+                      self.controller.resource_name, 'update', new)
         ])
 
     def test_security_service_update_description(self):
@@ -221,7 +221,7 @@ class ShareApiTest(test.TestCase):
         self.assertEqual(2, security_service.policy.check_policy.call_count)
         security_service.policy.check_policy.assert_has_calls([
             mock.call(req.environ['manila.context'],
-                      security_service.RESOURCE_NAME, 'update', new)
+                      self.controller.resource_name, 'update', new)
         ])
 
     @mock.patch.object(db, 'security_service_get', mock.Mock())
@@ -245,7 +245,7 @@ class ShareApiTest(test.TestCase):
         self.assertEqual(1, security_service.policy.check_policy.call_count)
         security_service.policy.check_policy.assert_has_calls([
             mock.call(req.environ['manila.context'],
-                      security_service.RESOURCE_NAME, 'update',
+                      self.controller.resource_name, 'update',
                       db.security_service_get.return_value)
         ])
 
@@ -284,7 +284,7 @@ class ShareApiTest(test.TestCase):
         self.assertEqual(2, security_service.policy.check_policy.call_count)
         security_service.policy.check_policy.assert_has_calls([
             mock.call(req.environ['manila.context'],
-                      security_service.RESOURCE_NAME, 'update', old)
+                      self.controller.resource_name, 'update', old)
         ])
 
     @mock.patch.object(db, 'security_service_get', mock.Mock())

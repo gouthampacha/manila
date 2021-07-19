@@ -15,6 +15,7 @@
 
 """The share snapshots api."""
 
+import ast
 from oslo_log import log
 from six.moves import http_client
 import webob
@@ -113,6 +114,10 @@ class ShareSnapshotMixin(object):
             search_opts['display_description'] = search_opts.pop(
                 'description')
 
+        # Deserialize dicts
+        if 'metadata' in search_opts:
+            search_opts['metadata'] = ast.literal_eval(search_opts['metadata'])
+
         # like filter
         for key, db_key in (('name~', 'display_name~'),
                             ('description~', 'display_description~')):
@@ -140,7 +145,7 @@ class ShareSnapshotMixin(object):
     def _get_snapshots_search_options(self):
         """Return share snapshot search options allowed by non-admin."""
         return ('display_name', 'status', 'share_id', 'size', 'display_name~',
-                'display_description~', 'display_description')
+                'display_description~', 'display_description', 'metadata')
 
     def update(self, req, id, body):
         """Update a snapshot."""
