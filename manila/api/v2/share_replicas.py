@@ -176,6 +176,15 @@ class ShareReplicationController(wsgi.Controller, wsgi.AdminActionsMixin):
                     "since it has been soft deleted.") % share_id
             raise exc.HTTPForbidden(explanation=msg)
 
+        if share_ref.get('instance'):
+            share_instance_id = share_ref.instance.get('id')
+            if share_instance_id:
+                instance = db.share_instance_get(context, share_instance_id)
+                if instance.get('encryption_key_ref'):
+                    msg = _("Replica cannot be created for share '%s' "
+                            "since it is encrypted.") % share_id
+                    raise exc.HTTPForbidden(explanation=msg)
+
         share_network_id = body.get('share_replica').get('share_network_id')
         if share_network_id:
             if req.api_version_request < api_version.APIVersionRequest("2.72"):

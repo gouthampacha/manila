@@ -1369,6 +1369,21 @@ driver_options:
   in: body
   required: false
   type: object
+encryption_key_ref_request:
+  description: |
+    The encryption key ref is valid barbican secret UUID that will be used to
+    get encryption key by the storage drivers.
+  in: body
+  required: false
+  type: object
+  min_version: 2.90
+encryption_key_ref_response:
+  description: |
+    The encryption key ref is valid barbican secret UUID that will be used to
+    get encryption key by the storage drivers.
+  in: body
+  required: true
+  type: object
 export_location:
   description: |
     The export location.  For newer API versions it is available in
