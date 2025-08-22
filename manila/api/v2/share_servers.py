@@ -242,6 +242,11 @@ class ShareServerController(share_servers.ShareServerController,
         if not params:
             raise exc.HTTPBadRequest(explanation=_("Request is missing body."))
 
+        if share_server['encryption_key_ref']:
+            msg = _("Cannot migrate the share server containing encryption "
+                    "key reference")
+            raise exc.HTTPBadRequest(explanation=msg)
+
         bool_params = ['writable', 'nondisruptive', 'preserve_snapshots']
         mandatory_params = bool_params + ['host']
 
@@ -369,6 +374,11 @@ class ShareServerController(share_servers.ShareServerController,
 
         if not params:
             raise exc.HTTPBadRequest(explanation=_("Request is missing body."))
+
+        if share_server.get('encryption_key_ref'):
+            msg = _("Cannot migrate the share server containing encryption "
+                    "key reference")
+            raise exc.HTTPBadRequest(explanation=msg)
 
         bool_params = ['writable', 'nondisruptive', 'preserve_snapshots']
         mandatory_params = bool_params + ['host']

@@ -286,7 +286,7 @@ class API(base.Base):
                share_group_id=None, share_group_snapshot_member=None,
                availability_zones=None, scheduler_hints=None,
                az_request_multiple_subnet_support_map=None,
-               mount_point_name=None):
+               mount_point_name=None, encryption_key_ref=None):
         """Create new share."""
 
         api_common.check_metadata_properties(metadata)
@@ -481,6 +481,23 @@ class API(base.Base):
                 az_request_multiple_subnet_support_map = (
                     compatible_azs_multiple)
 
+        if encryption_key_ref:
+            # Make sure encryption_key_ref is valid UUID
+            if not uuidutils.is_uuid_like(encryption_key_ref):
+                msg = _('Encryption key ref is not valid UUID')
+                raise exception.InvalidInput(reason=msg)
+
+            # Get count of encryption keys for project and validate quota
+            is_existing_key = self.db.encryption_keys_get_all(
+                context, filters={'encryption_key_ref': encryption_key_ref})
+            if not is_existing_key:
+                keys_count = self.db.encryption_keys_get_count(context)
+                quotas = QUOTAS.get_project_quotas(
+                    context, project_id=context.project_id)
+                keys_limit = quotas['encryption_keys']['limit']
+                if keys_count >= keys_limit:
+                    raise exception.EncryptionKeysLimitExceeded()
+
         share = None
         try:
             share = self.db.share_create(context, options,
@@ -517,7 +534,8 @@ class API(base.Base):
             snapshot_host=snapshot_host, scheduler_hints=scheduler_hints,
             az_request_multiple_subnet_support_map=(
                 az_request_multiple_subnet_support_map),
-            mount_point_name=mount_point_name)
+            mount_point_name=mount_point_name,
+            encryption_key_ref=encryption_key_ref)
 
         # Retrieve the share with instance details
         share = self.db.share_get(context, share['id'])
@@ -677,7 +695,7 @@ class API(base.Base):
                         share_type_id=None, availability_zones=None,
                         snapshot_host=None, scheduler_hints=None,
                         az_request_multiple_subnet_support_map=None,
-                        mount_point_name=None):
+                        mount_point_name=None, encryption_key_ref=None):
         request_spec, share_instance = (
             self.create_share_instance_and_get_request_spec(
                 context, share, availability_zone=availability_zone,
@@ -688,7 +706,8 @@ class API(base.Base):
                 snapshot_host=snapshot_host,
                 az_request_multiple_subnet_support_map=(
                     az_request_multiple_subnet_support_map),
-                mount_point_name=mount_point_name))
+                mount_point_name=mount_point_name,
+                encryption_key_ref=encryption_key_ref))
 
         if share_group_snapshot_member:
             # Inherit properties from the share_group_snapshot_member
@@ -732,7 +751,7 @@ class API(base.Base):
             share_type_id=None, cast_rules_to_readonly=False,
             availability_zones=None, snapshot_host=None,
             az_request_multiple_subnet_support_map=None,
-            mount_point_name=None):
+            mount_point_name=None, encryption_key_ref=None):
 
         availability_zone_id = None
         if availability_zone:
@@ -753,6 +772,7 @@ class API(base.Base):
                 'share_type_id': share_type_id,
                 'cast_rules_to_readonly': cast_rules_to_readonly,
                 'mount_point_name': mount_point_name,
+                'encryption_key_ref': encryption_key_ref,
             }
         )
 
@@ -786,7 +806,8 @@ class API(base.Base):
             'host': share_instance['host'],
             'status': share_instance['status'],
             'replica_state': share_instance['replica_state'],
-            'share_type_id': share_instance['share_type_id']
+            'share_type_id': share_instance['share_type_id'],
+            'encryption_key_ref': share_instance['encryption_key_ref'],
         }
 
         share_type = None
